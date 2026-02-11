@@ -10,7 +10,7 @@ import MainLayout from './Layouts/LayoutMain'
 import StudentDashboard from './components/StudentDasboard'
 import ScholarshipApplication from './components/ScholarshipApplication'
 import Sidebar from './components/Sidebar'
-import ViewDocuments from './components/viewDocuments'
+import ViewDocuments from './components/ViewDocuments'
 import UploadDocs from './components/UploadDocs'
 import LandingPage from './components/LandingPage'
 
@@ -26,13 +26,13 @@ const App = () => {
         <Route path='/view-docs' element={<ViewDocuments/>} />
         <Route path='/upload-docs' element={<UploadDocs/>} />
         </Route>
-        <Route path='/scholarship-application' element={<ScholarshipApplication/>}/> //not done
+        <Route path='/scholarship-application' element={<ScholarshipApplication/>}/> {/* not done */}
         <Route path='/login' element={<Login/>} />
         <Route path='/email-verify' element={<EmailVerify/>} />
         <Route path='/reset-password' element={<ResetPassword/>} />
-        <Route path='/reset-password' element={<ResetPassword/>} />
         <Route path='/sidebar' element={<Sidebar/>} />
         <Route path='/landing' element={<LandingPage/>} />
+        <Route path='/signup' element={<Login/>} />
 
       </Routes>
     </div>

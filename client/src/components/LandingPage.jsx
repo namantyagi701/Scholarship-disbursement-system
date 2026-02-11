@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { assets } from '../assets/assets';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 const LandingPage = () => {
     // --- Custom CSS for Animation (Tailwind utility classes are great, but for custom keyframes, we use style) ---
@@ -443,7 +444,7 @@ const LandingPage = () => {
     return (
         <div className="font-sans antialiased text-gray-900 bg-white">
             {customAnimations} {/* Inject the custom styles */}
-            <Navbar />
+            <Header/>
             <main>
                 <Hero />
                 <HowItWorks />

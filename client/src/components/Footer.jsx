@@ -8,8 +8,8 @@ const Footer = () => {
 
         {/* Column 1 — About */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">About PMSSS</h3>
-          <p className="text-gray-600 text-sm leading-relaxed">
+          <h3 className="text-lg font-semibold text-gray-100 mb-3">About PMSSS</h3>
+          <p className="text-gray-400 text-sm leading-relaxed">
             The Prime Minister’s Special Scholarship Scheme (PMSSS) aims to 
             support students by providing seamless online scholarship 
             applications, verification, and disbursement.
@@ -18,8 +18,8 @@ const Footer = () => {
 
         {/* Column 2 — Quick Links */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Quick Links</h3>
-          <ul className="text-gray-600 text-sm space-y-2">
+          <h3 className="text-lg font-semibold text-gray-100 mb-3">Quick Links</h3>
+          <ul className="text-gray-400 text-sm space-y-2">
             <li className="hover:text-blue-600 cursor-pointer">How to Apply</li>
             <li className="hover:text-blue-600 cursor-pointer">Downloads</li>
             <li className="hover:text-blue-600 cursor-pointer">Guidelines</li>
@@ -29,8 +29,8 @@ const Footer = () => {
 
         {/* Column 3 — Contact */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Us</h3>
-          <ul className="text-gray-600 text-sm space-y-3">
+          <h3 className="text-lg font-semibold text-gray-100 mb-3">Contact Us</h3>
+          <ul className="text-gray-400 text-sm space-y-3">
             <li className="flex items-center gap-2">
               <Mail className="w-5 h-5 text-blue-600" />
               support@pmsss.gov

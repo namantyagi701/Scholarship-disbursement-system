@@ -3,6 +3,7 @@ import { assets } from '../assets/assets'
 import { AppContent } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 function EmailVerify() {
 

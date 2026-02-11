@@ -1,100 +1,76 @@
-import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import React, { useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { GraduationCap } from 'lucide-react';
+import { AppContent } from '../context/AppContext';
 
 const Header = () => {
-  const [activeDropdown, setActiveDropdown] = useState(null);
-  const location = useLocation();
 
-  const menuItems = [
-    { label: "Home", items: [], path: "/" },
-    { label: "About", items: [], path: "/about" },
-    { label: "Dashboard", items: [], path: "/dashboard" },
-    {
-      label: "Downloads",
-      items: [
-        { label: "Income Certificate", path: "#" },
-        { label: "User Manual", path: "#" },
-        { label: "User Manual For Non-NET", path: "#" },
-        { label: "HDI Forwarding Letter", path: "#" },
-        { label: "GUIDELINES", path: "#" },
-        { label: "TR FORM 7", path: "#" },
-      ],
-    },
-    { label: "Scholarships", items: [], path: "/contactd" },
-    { label: "Weblinks", items: [], path: "#" },
-    { label: "Emergency Relief Fund", items: [], path: "#" },
-  ];
+  const navigate = useNavigate();
+  const { logoutUser, isLoggedin } = useContext(AppContent);
 
+ 
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate('/landing');
+  };
+  
   return (
-    <div className="w-full pt-4 bg-indigo-300 border-b border-gray-200 shadow-sm hidden sm:block">
-      <div className="max-w-[1300px] mx-auto px-6">
-        <ul className="flex justify-center gap-20 py-3">
-          {menuItems.map((item, index) => (
-            <li
-              key={index}
-              className="relative group"
-              onMouseEnter={() => setActiveDropdown(index)}
-              onMouseLeave={() => setActiveDropdown(null)}
-            >
-              
-              {/* MAIN MENU ITEM */}
-              <Link
-                to={item.path}
-                className={`
-                  relative px-2 py-1 text-[17px] font-semibold text-gray-700
-                  hover:text-blue-600 transition-all duration-200
-                  ${location.pathname === item.path ? "text-blue-600" : ""}
-                `}
+    <header className="sticky top-0 z-40 bg-[#f5f6f1] shadow-md w-full">
+      <div className="max-w-7xl mx-auto px-8 sm:px-12 lg:px-16">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
+          <Link to="/" className="flex items-center">
+            <GraduationCap className="w-10 h-10 text-blue-500 mr-3" />
+            <div className="text-3xl font-bold text-gray-700">ScholarBridge</div>
+          </Link>
+
+          {/* Navigation Links */}
+          {isLoggedin &&
+            <>
+              <nav className="hidden md:flex space-x-10 items-center text-gray-600 font-medium">
+                <Link to="/" className="hover:text-blue-500 transition-colors">Home</Link>
+                <Link to="/about" className="hover:text-blue-500 transition-colors">About Us</Link>
+                <Link to="/dashboard" className="hover:text-blue-500 transition-colors">Dashboard</Link>
+                <Link to="/contact" className="hover:text-blue-500 transition-colors">Contact Us</Link>
+                <Link to="/faq" className="hover:text-blue-500 transition-colors">FAQs</Link>
+
+              </nav>
+            </>
+          }
+
+          {/* Action Buttons */}
+          <div className="flex space-x-6">
+
+            {isLoggedin ? (
+              <button
+                onClick={handleLogout}
+                className="bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold shadow-sm hover:bg-blue-700 transition-colors"
               >
-                {item.label}
-
-                {/* Animated underline */}
-                <span
-                  className={`
-                    absolute left-0 -bottom-0.5 h-0.5 w-full bg-blue-600 rounded-full
-                    transform origin-left transition-transform duration-300
-                    ${location.pathname === item.path ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}
-                  `}
-                ></span>
-
-                {item.items.length > 0 && (
-                  <ChevronDown
-                    className="inline-block ml-1 transition-transform duration-300 group-hover:rotate-180"
-                    size={16}
-                  />
-                )}
-              </Link>
-
-              {/* DROPDOWN */}
-              {item.items.length > 0 && activeDropdown === index && (
-                <ul
-                  className="
-                    absolute left-0 mt-2 w-56 bg-white border border-gray-200 
-                    shadow-lg rounded-md z-20 overflow-hidden animate-fadeIn
-                  "
+                LOGOUT
+              </button>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="bg-white text-gray-800 px-8 py-3 rounded-lg font-semibold shadow-sm hover:bg-gray-100 transition-colors border border-gray-300"
                 >
-                  {item.items.map((subItem, subIndex) => (
-                    <li key={subIndex}>
-                      <Link
-                        to={subItem.path}
-                        className="
-                          block px-5 py-3 text-[15px] text-gray-700
-                          hover:bg-blue-50 hover:text-blue-600 transition-all
-                        "
-                      >
-                        {subItem.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
+                  LOGIN
+                </Link>
 
-            </li>
-          ))}
-        </ul>
+                <Link
+                  to="/signup"
+                  className="bg-blue-500 text-white px-8 py-3 rounded-lg font-semibold shadow-sm hover:bg-green-700 transition-colors"
+                >
+                  SIGN UP
+                </Link>
+              </>
+            )}
+
+          </div>
+
+        </div>
       </div>
-    </div>
+    </header>
   );
 };
 

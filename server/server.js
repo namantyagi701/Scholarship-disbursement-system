@@ -4,7 +4,10 @@ import 'dotenv/config';
 import cookieParser from "cookie-parser";
 import connectDB from "./config/mongodb.js";
 import authRouter from "./routes/authRoutes.js";
-import userRouter from "./routes/userRouter.js";
+import studentRouter from "./routes/studentRoutes.js";
+import sagRouter from "./routes/sagRoutes.js";
+import financeRouter from "./routes/financeRoutes.js";
+import adminRouter from "./routes/adminRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 4000
@@ -17,6 +20,10 @@ app.use(cors({origin: allowedOrigins , credentials : true}));
 
 app.get('/' , (req , res) => res.send("API Working")); //test
 app.use('/api/auth' , authRouter)
-app.use('/api/user' , userRouter)
+app.use("/api/student", studentRouter);
+app.use("/api/sag", sagRouter);
+app.use("/api/finance", financeRouter);
+app.use("/api/admin", adminRouter);
+
 
 app.listen(port , () => console.log(`Server started on PORT:${port}`));

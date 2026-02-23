@@ -2,6 +2,19 @@ import cloudinary from "../config/cloudinary.js";
 import documentModel from "../models/documentModel.js";
 import applicationModel from "../models/applicationModel.js";
 
+export const getDocuments = async (req, res) => {
+  try {
+    const documents = await documentModel
+      .find({ student: req.user._id })
+      .populate("verifiedBy", "fullName email")
+      .sort({ createdAt: -1 });
+
+    return res.json({ success: true, documents });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const uploadDocument = async (req, res) => {
   try {
     const { documentType, applicationId } = req.body;

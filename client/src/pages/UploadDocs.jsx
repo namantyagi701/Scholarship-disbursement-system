@@ -38,7 +38,7 @@ const UploadDocs = () => {
   };
 
   return (
-    <div className="min-h-screen flex justify-center items-center bg-linear-to-r from-blue-100 to-purple-100 p-6">
+    <div className="min-h-screen flex justify-center items-center bg-blue-100 p-6">
       <div className="bg-white w-full max-w-xl rounded-xl shadow-lg p-8">
         
         <h1 className="text-3xl font-bold text-center text-purple-600 mb-6">

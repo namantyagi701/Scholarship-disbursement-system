@@ -15,17 +15,17 @@ export const AppContextProvider = (props) => {
             const { data } = await axios.get(backendUrl + '/api/auth/is-auth')
             if (data.success) {
                 setIsLoggedin(true)
-                await getUserData();   
+                setUserData(data.user)
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || error.message)
+            // Not logged in — silently ignore 401
         }
     }
 
     const getUserData = async () => {
         try {
-            const { data } = await axios.get(backendUrl + '/api/user/data')
-            data.success ? setUserData(data.userData) : toast.error(data.message)
+            const { data } = await axios.get(backendUrl + '/api/auth/is-auth')
+            data.success ? setUserData(data.user) : toast.error(data.message)
         } catch (error) {
             toast.error(error.response?.data?.message || "Could not load user")
         }

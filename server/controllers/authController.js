@@ -17,7 +17,8 @@ export const register = async (req, res) => {
         }
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const user = new userModel({ fullName, email, mobile, password: hashedPassword })
+        // Public registration is always for students — role cannot be overridden
+        const user = new userModel({ fullName, email, mobile, password: hashedPassword, role: 'student' })
 
         await user.save();
 
@@ -73,7 +74,7 @@ export const Login = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000 //in ms
         });
 
-        return res.json({ success: true });
+        return res.json({ success: true, role: user.role });
 
 
     } catch (error) {

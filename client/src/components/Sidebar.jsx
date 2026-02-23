@@ -1,304 +1,186 @@
-import React, { useState, useEffect } from "react";
-import { useLocation, useNavigate, NavLink } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { AppContent } from '../context/AppContext';
 import {
-  ChevronDown,
-  ChevronUp,
-  Settings,
-  Users,
-  GraduationCap,
-  Building,
-  UserPlus,
-  BookOpen,
   Home,
-  BarChart2,
+  User,
+  Upload,
+  FileText,
+  ClipboardList,
+  CreditCard,
+  CheckCircle,
+  XCircle,
+  Users,
+  UserPlus,
   LogOut,
-  Menu,
-  X
-} from "lucide-react";
+  X,
+  ChevronDown,
+  ChevronRight
+} from 'lucide-react';
 
-const Sidebar = (props) => {
+const Sidebar = ({ isOpen, onClose }) => {
+  const { userData, logoutUser } = useContext(AppContent);
   const location = useLocation();
   const navigate = useNavigate();
+  const [openMenus, setOpenMenus] = React.useState({});
 
-  // Safely resolve user: props -> localStorage -> default
-  const storedUser = (() => {
-    try {
-      return JSON.parse(localStorage.getItem("user") || "null");
-    } catch {
-      return null;
-    }
-  })();
-  const user = props.user ?? storedUser ?? { fullName: "Guest User", role: "student" };
-
-  // State management
-  const [dropdownOpen, setDropdownOpen] = useState({
-    DocumentStatus: false,
-    "Scholarship Status": false,
-    userManagement: false,
-  });
-  const [activeLink, setActiveLink] = useState("Home");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isCompactMode, setIsCompactMode] = useState(false);
-  const [isMobileView, setIsMobileView] = useState(false);
-
-  // Screen size and responsiveness
-  useEffect(() => {
-    const checkScreenSize = () => {
-      const w = window.innerWidth;
-      setIsMobileView(w < 768);
-
-      if (w < 768) {
-        setIsCompactMode(false);
-        setIsSidebarOpen(false);
-      } else if (w < 1024) {
-        setIsCompactMode(true);
-        setIsSidebarOpen(false);
-      } else {
-        setIsCompactMode(false);
-        setIsSidebarOpen(true);
-      }
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  const toggleDropdown = (section) => {
-    setDropdownOpen((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
+  const toggleSubMenu = (label) => {
+    setOpenMenus((prev) => ({ ...prev, [label]: !prev[label] }));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("uid");
-    // Optionally clear stored user
-    // localStorage.removeItem("user");
-    navigate("/");
-    console.log("User logged out");
+  const handleLogout = async () => {
+    await logoutUser();
+    onClose();
+    navigate('/');
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen((s) => !s);
-  };
+  const role = userData?.role || 'student';
 
-  const items = [
-    { name: "Home", icon: Home, path: "/home" },
-    { name: "Dashboard", icon: BarChart2, path: "/dashboard" },
-    {
-      name: "Document Status",
-      icon: GraduationCap,
-      dropdown: [
-        { name: "Upload Documents", path: "/upload" },
-        { name: "Documents Status", path: "/docs-track" },
-      ],
-    },
-    {
-      name: "Scholarship Status",
-      icon: Building,
-      dropdown: [
-        { name: "Available Scholarships", path: "/viewScholarships" },
-        { name: "Applications Status", path: "/updatedDashboard" },
-      ],
-    },
-    { name: "Video Verification", icon: UserPlus, path: "/ekyc0" },
-    { name: "FAQ", icon: UserPlus, path: "/FAQ" },
-    { name: "Payment History", icon: UserPlus, path: "/payment-history" },
-    { name: "Guidelines", icon: BookOpen, path: "/guidelines" },
-    { name: "Settings", icon: Settings, path: "/settings" },
-    { name: "Logout", icon: LogOut, action: handleLogout }
-  ];
-
-  const convertToNameFormat = (text) =>
-    (text || "")
-      .split(" ")
-      .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : ""))
-      .join(" ");
-
-  // Sidebar variants for animation
-  const sidebarVariants = {
-    closed: {
-      width: isCompactMode ? "5rem" : "0",
-      transition: {
-        duration: 0.25,
-        type: "tween",
+  // Role-based menu items matching backend routes
+  const menuConfig = {
+    student: [
+      { label: 'Home', icon: Home, path: '/home' },
+      { label: 'Profile', icon: User, path: '/profile' },
+      {
+        label: 'Scholarship',
+        icon: ClipboardList,
+        children: [
+          { label: 'Application', path: '/scholarship-application' },
+          { label: 'Application Status', path: '/application-status' },
+        ],
       },
-    },
-    open: {
-      width: isCompactMode ? "5rem" : "16rem",
-      transition: {
-        duration: 0.25,
-        type: "tween",
-      },
-    },
+      { label: 'Payment Details', icon: CreditCard, path: '/payment-details' },
+    ],
+    sag: [
+      { label: 'Home', icon: Home, path: '/home' },
+      { label: 'All Applications', icon: ClipboardList, path: '/sag/applications' },
+    ],
+    finance: [
+      { label: 'Home', icon: Home, path: '/home' },
+      { label: 'Approved Applications', icon: CheckCircle, path: '/finance/approved' },
+      { label: 'Payment History', icon: CreditCard, path: '/finance/payment-history' },
+    ],
+    admin: [
+      { label: 'Home', icon: Home, path: '/home' },
+      { label: 'Create User', icon: UserPlus, path: '/admin/create-user' },
+      { label: 'Manage Users', icon: Users, path: '/admin/users' },
+    ],
   };
 
-  const menuItemVariants = {
-    hidden: { opacity: 0, x: -20 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.25,
-      },
-    },
-  };
+  const menuItems = menuConfig[role] || menuConfig.student;
+
+  const isActive = (path) => location.pathname === path;
 
   return (
     <>
-      {/* Mobile Menu Toggle */}
-      <motion.div
-        className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-full shadow-lg"
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={toggleSidebar}
-      >
-        {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-      </motion.div>
+      {/* Overlay */}
+      {/* Overlay — mobile only */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden transition-opacity"
+          onClick={onClose}
+        />
+      )}
 
       {/* Sidebar */}
-      <motion.div
-        initial={false}
-        animate={isSidebarOpen ? "open" : "closed"}
-        variants={sidebarVariants}
-        className={`
-          fixed top-0 left-0 z-40 
-          bg-linear-to-b from-gray-900 to-gray-800 
-          text-white h-full 
-          shadow-2xl
-          ${isCompactMode ? "w-20" : "w-64"}
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          md:relative md:translate-x-0 
-          flex flex-col
-        `}
+      <aside
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#1e293b] text-white transform transition-transform duration-300 ease-in-out flex flex-col ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
-        {/* Close Button for Mobile/Compact Mode */}
-        {(isSidebarOpen || isCompactMode) && isMobileView && (
-          <motion.div
-            className="absolute top-4 right-4 cursor-pointer text-gray-300 hover:text-white"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={toggleSidebar}
+        {/* User Profile */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-slate-700">
+          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shrink-0">
+            <User className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold truncate">{userData?.fullName || 'User'}</p>
+            <p className="text-xs text-slate-400 capitalize">{userData?.role || 'Student'}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-slate-700 rounded-lg transition-colors lg:hidden"
           >
-            <X size={24} />
-          </motion.div>
-        )}
-
-        {/* User Profile Section */}
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={menuItemVariants}
-          className="flex items-center mb-6 p-4 border-b border-gray-700"
-        >
-          <motion.img
-            src="https://thumbs.dreamstime.com/b/half-body-father-avatar-vector-stock-illustration-isolated-blue-background-312576179.jpg"
-            alt="User Avatar"
-            className="w-12 h-12 rounded-full mr-4 border-2 border-blue-500"
-            whileHover={{ scale: 1.05 }}
-          />
-          <div className={isCompactMode ? "hidden" : ""}>
-            <p className="font-bold text-xl text-blue-300">
-              {convertToNameFormat(user.fullName)}
-            </p>
-            <p className="text-sm text-gray-400">
-              {user.role === "student" ? "Student" : "Admin"}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Menu Items */}
-        <div className="grow overflow-hidden">
-          <div className="h-full overflow-y-auto sidebar-scroll px-2">
-            <AnimatePresence>
-              {items.map((item, index) => (
-                <motion.div
-                  key={index}
-                  initial="hidden"
-                  animate="visible"
-                  variants={menuItemVariants}
-                  transition={{ delay: index * 0.03 }}
-                >
-                  <motion.div
-                    onClick={() => {
-                      if (item.dropdown) {
-                        toggleDropdown(item.name);
-                      } else if (item.action) {
-                        item.action();
-                      } else {
-                        setActiveLink(item.name);
-                        if (item.path) navigate(item.path);
-                      }
-                    }}
-                    whileHover={{
-                      scale: 1.02,
-                      transition: { duration: 0.15 },
-                    }}
-                  >
-                    <NavLink
-                      to={item.path || "#"}
-                      className={`flex items-center py-3 px-3 rounded-lg cursor-pointer transition duration-200 ease-in-out
-                        ${activeLink === item.name ? "bg-blue-600 text-white" : "hover:bg-gray-700 text-gray-300"}
-                        ${isCompactMode ? "justify-center" : ""} ${item.name === "Logout" ? "hover:bg-red-600" : ""}`}
-                    >
-                      <item.icon size={18} className="mr-3" />
-                      <span className={`text-base font-medium ${isCompactMode ? "hidden" : ""}`}>
-                        {item.name}
-                      </span>
-                      {item.dropdown && !isCompactMode &&
-                        (dropdownOpen[item.name] ? (
-                          <ChevronUp size={18} className="ml-auto" />
-                        ) : (
-                          <ChevronDown size={18} className="ml-auto" />
-                        ))
-                      }
-                    </NavLink>
-                  </motion.div>
-
-                  {/* Dropdown Submenu */}
-                  <AnimatePresence>
-                    {item.dropdown && dropdownOpen[item.name] && !isCompactMode && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{
-                          opacity: 1,
-                          height: "auto",
-                          transition: { duration: 0.2 }
-                        }}
-                        exit={{
-                          opacity: 0,
-                          height: 0,
-                          transition: { duration: 0.15 }
-                        }}
-                        className="ml-6 mt-1"
-                      >
-                        {item.dropdown.map((subItem, subIndex) => (
-                          <motion.div key={subIndex} whileHover={{ scale: 1.02 }}>
-                            <NavLink
-                              to={subItem.path}
-                              className={({ isActive }) =>
-                                `py-2 px-3 rounded-lg cursor-pointer text-sm block transition duration-150 ease-in-out
-                                  ${isActive ? "bg-blue-500 text-white" : "hover:bg-gray-700 text-gray-300"}`
-                              }
-                              onClick={() => {
-                                setActiveLink(subItem.name);
-                              }}
-                            >
-                              {subItem.name}
-                            </NavLink>
-                          </motion.div>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
+            <X className="w-5 h-5" />
+          </button>
         </div>
-      </motion.div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1 scrollbar-thin">
+          {menuItems.map((item) => {
+            if (item.children) {
+              const isSubOpen = openMenus[item.label];
+              const isChildActive = item.children.some((c) => isActive(c.path));
+
+              return (
+                <div key={item.label}>
+                  <button
+                    onClick={() => toggleSubMenu(item.label)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      isChildActive
+                        ? 'bg-blue-600 text-white'
+                        : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                    }`}
+                  >
+                    <item.icon className="w-5 h-5 shrink-0" />
+                    <span className="flex-1 text-left">{item.label}</span>
+                    {isSubOpen ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                  </button>
+                  {isSubOpen && (
+                    <div className="ml-8 mt-1 space-y-1">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.path}
+                          to={child.path}
+                          onClick={onClose}
+                          className={`block px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isActive(child.path)
+                              ? 'text-blue-400 bg-slate-700/60'
+                              : 'text-slate-400 hover:text-white hover:bg-slate-700/40'
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={onClose}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  isActive(item.path)
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-300 hover:bg-slate-700 hover:text-white'
+                }`}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                <span>{item.label}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="border-t border-slate-700 p-3">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-slate-300 hover:bg-red-600/20 hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            <span>Logout</span>
+          </button>
+        </div>
+      </aside>
     </>
   );
 };

@@ -14,7 +14,7 @@ import {
 
 
 
-import { uploadDocument } from "../controllers/documentController.js";
+import { uploadDocument, getDocuments } from "../controllers/documentController.js";
 import upload from "../middleware/multer.js";
 
 const studentRouter = express.Router();
@@ -34,6 +34,8 @@ studentRouter.post("/submit-application", submitApplication);
 studentRouter.get("/application-status", getApplicationStatus);
 
 studentRouter.get("/payment-details", getPaymentDetails);
+
+studentRouter.get("/documents", getDocuments);
 
 studentRouter.post(
   "/upload-document", upload.single("file"), uploadDocument);

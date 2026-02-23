@@ -47,7 +47,7 @@ function EmailVerify() {
       if(data.success){
         toast.success(data.message)
         getUserData();
-        navigate('/')
+        navigate('/home')
       }
       else{
         toast.error(data.message)
@@ -58,7 +58,7 @@ function EmailVerify() {
   }
 
   return (
-    <div className='flex items-center justify-center min-h-screen bg-linear-to-br from-blue-200 to-purple-200'>
+    <div className='flex items-center justify-center min-h-screen bg-blue-100'>
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className='absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer' />
       <form className='bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm'>
         <h1 className='text-white text-2xl font-semibold text-center mb-4'>Email Verify OTP</h1>
@@ -74,7 +74,7 @@ function EmailVerify() {
             />
           ))}
         </div>
-        <button className='w-full py-3 bg-linear-to-r from-indigo-500 to-indigo-900 rounded-full'>Verify email</button>
+        <button className='w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full'>Verify email</button>
       </form>
 
     </div>

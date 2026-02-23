@@ -3,6 +3,7 @@ import userAuth from "../middleware/userAuth.js";
 import roleMiddleware from "../middleware/roleMiddleware.js";
 
 import {
+  createUser,
   getAllUsers,
   suspendUser,
   activateUser,
@@ -13,6 +14,8 @@ const adminRouter = express.Router();
 
 adminRouter.use(userAuth);
 adminRouter.use(roleMiddleware("admin"));
+
+adminRouter.post("/create-user", createUser);
 
 adminRouter.get("/users", getAllUsers);
 

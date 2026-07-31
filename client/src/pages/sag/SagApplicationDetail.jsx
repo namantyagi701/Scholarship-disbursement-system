@@ -30,6 +30,7 @@ const SagApplicationDetail = () => {
   const [docRejectModal, setDocRejectModal] = useState(false);
   const [docRejectReason, setDocRejectReason] = useState("");
   const [currentDocId, setCurrentDocId] = useState(null);
+  const [amount, setAmount] = useState("");
 
   useEffect(() => {
     fetchApplication();
@@ -51,9 +52,14 @@ const SagApplicationDetail = () => {
   };
 
   const handleVerify = async () => {
+    const parsedAmount = Number(amount);
+    if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
+      toast.error("Please enter a valid scholarship amount");
+      return;
+    }
     setActionLoading(true);
     try {
-      const { data } = await axios.put(backendUrl + `/api/sag/verify/${id}`);
+      const { data } = await axios.put(backendUrl + `/api/sag/verify/${id}`, { amount: parsedAmount });
       if (data.success) {
         toast.success(data.message);
         setApplication(data.application);
@@ -151,6 +157,7 @@ const SagApplicationDetail = () => {
     ? (application.formData instanceof Map ? Object.fromEntries(application.formData) : application.formData)
     : {};
   const isActionable = application.status === "submitted";
+  const allDocsApproved = documents.length > 0 && documents.every(doc => doc.verificationStatus === "approved");
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -297,22 +304,49 @@ const SagApplicationDetail = () => {
           </div>
 
           {isActionable && (
-            <div className="flex gap-3">
-              <button
-                onClick={handleVerify}
-                disabled={actionLoading}
-                className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-60"
-              >
-                <CheckCircle className="w-4 h-4" />
-                {actionLoading ? "Processing..." : "Verify & Approve"}
-              </button>
-              <button
-                onClick={() => setShowRejectModal(true)}
-                disabled={actionLoading}
-                className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-60"
-              >
-                <XCircle className="w-4 h-4" /> Reject
-              </button>
+            <div className="flex flex-col gap-4">
+              {/* Scholarship Amount Input */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Scholarship Amount (₹) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    className="w-48 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  />
+                </div>
+              </div>
+
+              {/* Document approval warning */}
+              {!allDocsApproved && (
+                <p className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                  All documents must be individually approved before the application can be verified.
+                </p>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={handleVerify}
+                  disabled={actionLoading || !allDocsApproved}
+                  title={!allDocsApproved ? "Approve all documents first" : ""}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  {actionLoading ? "Processing..." : "Verify & Approve"}
+                </button>
+                <button
+                  onClick={() => setShowRejectModal(true)}
+                  disabled={actionLoading}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors disabled:opacity-60"
+                >
+                  <XCircle className="w-4 h-4" /> Reject
+                </button>
+              </div>
             </div>
           )}
         </div>

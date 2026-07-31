@@ -7,7 +7,13 @@ import {
   Search,
   Calendar,
   IndianRupee,
+  Landmark,
 } from "lucide-react";
+
+const maskAccount = (num) => {
+  if (!num || num.length <= 4) return num || "—";
+  return "••••" + num.slice(-4);
+};
 
 const FinancePaymentHistory = () => {
   const { backendUrl } = useContext(AppContent);
@@ -95,6 +101,8 @@ const FinancePaymentHistory = () => {
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Student</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Email</th>
+                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Amount</th>
+                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Bank Details</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Transaction ID</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Disbursed By</th>
                   <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
@@ -107,6 +115,19 @@ const FinancePaymentHistory = () => {
                       {app.student?.fullName || "—"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-500">{app.student?.email || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
+                      {app.amount ? `₹${app.amount.toLocaleString("en-IN")}` : "—"}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-600">
+                      <div className="flex items-center gap-1.5">
+                        <Landmark className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="font-mono">{maskAccount(app.bankAccountNumber)}</span>
+                        {app.ifscCode && <span className="text-gray-400 text-xs">({app.ifscCode})</span>}
+                      </div>
+                      {app.accountHolderName && (
+                        <p className="text-xs text-gray-400 mt-0.5">{app.accountHolderName}</p>
+                      )}
+                    </td>
                     <td className="px-6 py-4 text-sm text-gray-900 font-mono">
                       {app.transactionId || "—"}
                     </td>

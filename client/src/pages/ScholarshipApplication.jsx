@@ -65,9 +65,12 @@ const ScholarshipApplication = () => {
     registrationNumber: '',
     annualFamilyIncome: '',
     bankName: '',
-    accountNumber: '',
-    ifscCode: '',
   });
+
+  // Bank details (top-level, separate from formData)
+  const [bankAccountNumber, setBankAccountNumber] = useState('');
+  const [ifscCode, setIfscCode] = useState('');
+  const [accountHolderName, setAccountHolderName] = useState('');
 
   // Step 3: Documents
   const [uploadedDocs, setUploadedDocs] = useState({});
@@ -113,6 +116,10 @@ const ScholarshipApplication = () => {
                 }
                 setFormData((prev) => ({ ...prev, ...saved }));
               }
+              // Prefill bank details from application snapshot
+              if (app.bankAccountNumber) setBankAccountNumber(app.bankAccountNumber);
+              if (app.ifscCode) setIfscCode(app.ifscCode);
+              if (app.accountHolderName) setAccountHolderName(app.accountHolderName);
               
               // Prefill documents
               try {
@@ -192,7 +199,7 @@ const ScholarshipApplication = () => {
     const required = [
       'name', 'email', 'fatherName', 'dateOfBirth', 'contactNumber',
       'address', 'courseName', 'instituteName', 'annualFamilyIncome',
-      'bankName', 'accountNumber', 'ifscCode',
+      'bankName',
     ];
     for (const field of required) {
       if (!formData[field]) {
@@ -200,10 +207,18 @@ const ScholarshipApplication = () => {
         return;
       }
     }
+    if (!bankAccountNumber) { toast.error('Please fill in bank account number'); return; }
+    if (!ifscCode) { toast.error('Please fill in IFSC code'); return; }
+    if (!accountHolderName) { toast.error('Please fill in account holder name'); return; }
 
     setLoading(true);
     try {
-      const { data } = await axios.post(backendUrl + '/api/student/save-application', { formData });
+      const { data } = await axios.post(backendUrl + '/api/student/save-application', {
+        formData,
+        bankAccountNumber,
+        ifscCode,
+        accountHolderName,
+      });
       if (data.success) {
         toast.success(data.message);
         setApplicationId(data.applicationId);
@@ -402,8 +417,6 @@ const ScholarshipApplication = () => {
                   { name: 'registrationNumber', label: 'Registration Number', type: 'text' },
                   { name: 'annualFamilyIncome', label: 'Annual Family Income (₹)', type: 'number', required: true },
                   { name: 'bankName', label: 'Bank Name', type: 'text', required: true },
-                  { name: 'accountNumber', label: 'Account Number', type: 'text', required: true },
-                  { name: 'ifscCode', label: 'IFSC Code', type: 'text', required: true },
                 ].map((field) => (
                   <div key={field.name}>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -432,6 +445,46 @@ const ScholarshipApplication = () => {
                     )}
                   </div>
                 ))}
+              </div>
+
+              {/* Bank Details — top-level fields */}
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Bank Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={bankAccountNumber}
+                      onChange={(e) => setBankAccountNumber(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      IFSC Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={ifscCode}
+                      onChange={(e) => setIfscCode(e.target.value.toUpperCase())}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Account Holder Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={accountHolderName}
+                      onChange={(e) => setAccountHolderName(e.target.value)}
+                      className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end mt-8">
@@ -600,6 +653,25 @@ const ScholarshipApplication = () => {
                             </div>
                           ) : null
                         )}
+                      </div>
+                    </div>
+
+                    {/* Bank Details Summary */}
+                    <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+                      <h3 className="font-semibold text-gray-800 mb-3">Bank Details</h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        <div className="flex gap-2">
+                          <span className="text-gray-500">Account Number:</span>
+                          <span className="text-gray-800 font-medium font-mono">{bankAccountNumber}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <span className="text-gray-500">IFSC Code:</span>
+                          <span className="text-gray-800 font-medium font-mono">{ifscCode}</span>
+                        </div>
+                        <div className="flex gap-2 sm:col-span-2">
+                          <span className="text-gray-500">Account Holder:</span>
+                          <span className="text-gray-800 font-medium">{accountHolderName}</span>
+                        </div>
                       </div>
                     </div>
 

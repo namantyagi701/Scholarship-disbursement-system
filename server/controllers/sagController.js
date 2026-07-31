@@ -55,6 +55,17 @@ export const verifyApplication = async (req, res) => {
             });
         }
 
+        // Ensure all individual documents are approved before whole-application approval
+        const documents = await documentModel.find({ application: application._id });
+        const unapproved = documents.filter(doc => doc.verificationStatus !== "approved");
+        if (unapproved.length > 0) {
+            const pendingTypes = unapproved.map(d => d.documentType).join(", ");
+            return res.status(400).json({
+                success: false,
+                message: `Cannot approve application — the following documents are not yet approved: ${pendingTypes}`
+            });
+        }
+
         application.status = "verified";
         application.sagVerifiedBy = req.user._id;
         application.sagVerifiedAt = new Date();

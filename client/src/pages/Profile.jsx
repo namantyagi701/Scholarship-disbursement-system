@@ -12,6 +12,9 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
+import StatusStamp from "../components/ui/StatusStamp";
+import LedgerRow from "../components/ui/LedgerRow";
+
 // same palette as StudentDashboard:
 // ink #16213E · gold #B8860B · green #2F6F4F · maroon #8B2E2E · paper #FAF8F3
 
@@ -115,14 +118,6 @@ const Profile = () => {
     year: "numeric",
   });
 
-  const STATUS_INK = {
-    disbursed: "#B8860B",
-    verified: "#2F6F4F",
-    rejected: "#8B2E2E",
-    submitted: "#16213E",
-    draft: "#6B6558",
-  };
-
   return (
     <div className="min-h-screen bg-[#FAF8F3] p-4 sm:p-6 lg:p-10">
       <div className="max-w-5xl mx-auto">
@@ -215,24 +210,20 @@ const Profile = () => {
               <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-4">
                 Contact Information
               </p>
-              <div className="divide-y divide-[#EDE9DE]">
-                <div className="flex items-center justify-between gap-4 py-3">
-                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Email</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-[#16213E] font-medium truncate">
-                      {profile.email}
-                    </span>
-                    <span
-                      className="text-[10px] font-medium uppercase tracking-wide"
-                      style={{ color: profile.isEmailVerified ? "#2F6F4F" : "#B8860B" }}
-                    >
-                      {profile.isEmailVerified ? "Verified" : "Unverified"}
-                    </span>
-                  </div>
-                </div>
+              <div>
+                <LedgerRow label="Email">
+                  <span className="text-sm text-[#16213E] font-medium truncate">
+                    {profile.email}
+                  </span>
+                  <span
+                    className="text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: profile.isEmailVerified ? "#2F6F4F" : "#B8860B" }}
+                  >
+                    {profile.isEmailVerified ? "Verified" : "Unverified"}
+                  </span>
+                </LedgerRow>
 
-                <div className="flex items-center justify-between gap-4 py-3">
-                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Mobile</span>
+                <LedgerRow label="Mobile">
                   {editing ? (
                     <input
                       type="tel"
@@ -245,7 +236,7 @@ const Profile = () => {
                       {profile.mobile || "—"}
                     </span>
                   )}
-                </div>
+                </LedgerRow>
               </div>
             </div>
 
@@ -254,39 +245,33 @@ const Profile = () => {
               <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-4">
                 Identity &amp; Security
               </p>
-              <div className="divide-y divide-[#EDE9DE]">
-                <div className="flex items-center justify-between gap-4 py-3">
-                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Aadhaar</span>
-                  <div className="flex items-center gap-2">
-                    {editing && !profile.aadhaarVerified ? (
-                      <input
-                        type="text"
-                        maxLength={12}
-                        value={aadhaarNumber}
-                        onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, ""))}
-                        placeholder="12-digit number"
-                        className="font-mono-data text-sm text-[#16213E] border-b border-[#B8860B] bg-transparent outline-none w-40 text-right tracking-widest"
-                      />
-                    ) : (
-                      <span className="font-mono-data text-sm text-[#16213E]">
-                        {profile.aadhaarNumber
-                          ? `${profile.aadhaarNumber.slice(0, 4)} •••• ${profile.aadhaarNumber.slice(-4)}`
-                          : "Not provided"}
-                      </span>
-                    )}
-                    <span
-                      className="text-[10px] font-medium uppercase tracking-wide"
-                      style={{ color: profile.aadhaarVerified ? "#2F6F4F" : "#B8860B" }}
-                    >
-                      {profile.aadhaarVerified ? "Verified" : "Pending"}
+              <div>
+                <LedgerRow label="Aadhaar">
+                  {editing && !profile.aadhaarVerified ? (
+                    <input
+                      type="text"
+                      maxLength={12}
+                      value={aadhaarNumber}
+                      onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, ""))}
+                      placeholder="12-digit number"
+                      className="font-mono-data text-sm text-[#16213E] border-b border-[#B8860B] bg-transparent outline-none w-40 text-right tracking-widest"
+                    />
+                  ) : (
+                    <span className="font-mono-data text-sm text-[#16213E]">
+                      {profile.aadhaarNumber
+                        ? `${profile.aadhaarNumber.slice(0, 4)} •••• ${profile.aadhaarNumber.slice(-4)}`
+                        : "Not provided"}
                     </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between gap-4 py-3">
-                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">
-                    Email Verification
+                  )}
+                  <span
+                    className="text-[10px] font-medium uppercase tracking-wide"
+                    style={{ color: profile.aadhaarVerified ? "#2F6F4F" : "#B8860B" }}
+                  >
+                    {profile.aadhaarVerified ? "Verified" : "Pending"}
                   </span>
+                </LedgerRow>
+
+                <LedgerRow label="Email Verification">
                   <span
                     className="text-sm font-medium inline-flex items-center gap-1.5"
                     style={{ color: profile.isEmailVerified ? "#2F6F4F" : "#B8860B" }}
@@ -294,7 +279,7 @@ const Profile = () => {
                     <BadgeCheck className="w-3.5 h-3.5" />
                     {profile.isEmailVerified ? "Confirmed" : "Not confirmed"}
                   </span>
-                </div>
+                </LedgerRow>
               </div>
             </div>
           </div>
@@ -309,17 +294,7 @@ const Profile = () => {
               </p>
               {appStatus ? (
                 <div className="space-y-3">
-                  <div
-                    className="inline-block border-2 rounded px-3 py-1.5 -rotate-2"
-                    style={{
-                      borderColor: STATUS_INK[appStatus.status] || "#6B6558",
-                      color: STATUS_INK[appStatus.status] || "#6B6558",
-                    }}
-                  >
-                    <span className="font-serif-display text-sm font-semibold uppercase tracking-wide">
-                      {appStatus.status}
-                    </span>
-                  </div>
+                  <StatusStamp status={appStatus.status} />
                   <p className="text-xs text-[#8A8374]">
                     Updated{" "}
                     {new Date(appStatus.updatedAt).toLocaleDateString("en-IN", {

@@ -15,19 +15,8 @@ import {
   XCircle,
 } from "lucide-react";
 
-// ---------- palette / status tokens ----------
-// ink   #16213E  — primary, headers, filed/active state
-// gold  #B8860B  — accent, disbursed / stamp
-// green #2F6F4F  — verified
-// maroon#8B2E2E  — rejected
-// paper #FAF8F3  — page background
-const STATUS_CONFIG = {
-  draft:     { label: "Draft",            ink: "#6B6558", stampRotate: "-rotate-3" },
-  submitted: { label: "Submitted",        ink: "#16213E", stampRotate: "rotate-2" },
-  verified:  { label: "Verified by SAG",  ink: "#2F6F4F", stampRotate: "-rotate-2" },
-  rejected:  { label: "Rejected",         ink: "#8B2E2E", stampRotate: "rotate-3" },
-  disbursed: { label: "Disbursed",        ink: "#B8860B", stampRotate: "-rotate-3" },
-};
+import StatusStamp from "../components/ui/StatusStamp";
+import LedgerRow from "../components/ui/LedgerRow";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -79,7 +68,6 @@ const StudentDashboard = () => {
 
   // ---- Derived data ----
   const status = application?.status || "draft";
-  const statusCfg = STATUS_CONFIG[status] || STATUS_CONFIG.draft;
   const formData = application?.formData
     ? Object.fromEntries(
         application.formData instanceof Map
@@ -173,14 +161,7 @@ const StudentDashboard = () => {
             </div>
 
             {hasApplication && (
-              <div
-                className={`shrink-0 border-2 rounded px-4 py-2 ${statusCfg.stampRotate}`}
-                style={{ borderColor: statusCfg.ink, color: statusCfg.ink }}
-              >
-                <p className="font-serif-display text-sm sm:text-base font-semibold uppercase tracking-wide text-center">
-                  {statusCfg.label}
-                </p>
-              </div>
+              <StatusStamp status={status} />
             )}
           </div>
         </div>
@@ -287,20 +268,14 @@ const StudentDashboard = () => {
                 </p>
 
                 {Object.keys(formData).length > 0 ? (
-                  <div className="divide-y divide-[#EDE9DE]">
+                  <div>
                     {Object.entries(formData).map(([key, value]) =>
                       value ? (
-                        <div
+                        <LedgerRow
                           key={key}
-                          className="flex items-baseline justify-between gap-4 py-2.5"
-                        >
-                          <span className="text-xs text-[#8A8374] uppercase tracking-wide shrink-0">
-                            {key.replace(/([A-Z])/g, " $1")}
-                          </span>
-                          <span className="text-sm text-[#16213E] font-medium text-right truncate">
-                            {value}
-                          </span>
-                        </div>
+                          label={key.replace(/([A-Z])/g, " $1")}
+                          value={value}
+                        />
                       ) : null
                     )}
                   </div>

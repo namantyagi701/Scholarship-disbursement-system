@@ -14,6 +14,7 @@ import {
   Loader2,
   X,
   Eye,
+  XCircle,
 } from 'lucide-react';
 
 const STEPS = [
@@ -74,6 +75,8 @@ const ScholarshipApplication = () => {
 
   // Step 4: submitted
   const [submitted, setSubmitted] = useState(false);
+  const [isRejected, setIsRejected] = useState(false);
+  const [applicationRejectionReason, setApplicationRejectionReason] = useState('');
 
   // Check existing state on load
   useEffect(() => {
@@ -97,7 +100,11 @@ const ScholarshipApplication = () => {
               setSubmitted(true);
               setAadhaarVerified(true);
               setCurrentStep(3);
-            } else if (app.status === 'draft') {
+            } else if (app.status === 'draft' || app.status === 'rejected') {
+              if (app.status === 'rejected') {
+                setIsRejected(true);
+                setApplicationRejectionReason(app.rejectionReason || "Please review and correct your application.");
+              }
               // Prefill form from saved data
               if (app.formData) {
                 const saved = {};
@@ -106,6 +113,22 @@ const ScholarshipApplication = () => {
                 }
                 setFormData((prev) => ({ ...prev, ...saved }));
               }
+              
+              // Prefill documents
+              try {
+                const docsRes = await axios.get(backendUrl + '/api/student/documents');
+                if (docsRes.data.success && docsRes.data.documents) {
+                  const fetchedDocs = {};
+                  docsRes.data.documents.forEach(d => {
+                    // Only prefill if the document itself wasn't rejected, or prefill anyway so they can delete and reupload
+                    fetchedDocs[d.documentType] = { url: d.cloudinaryUrl, name: `${d.documentType.replace(/_/g, " ")} document` };
+                  });
+                  setUploadedDocs(fetchedDocs);
+                }
+              } catch (e) {
+                console.error("Could not fetch documents", e);
+              }
+
               // Jump to appropriate step
               if (userData?.aadhaarVerified) {
                 setCurrentStep(1);
@@ -347,6 +370,19 @@ const ScholarshipApplication = () => {
                 Application Form
               </h2>
 
+              {isRejected && (
+                <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg shadow-sm">
+                  <div className="flex items-start gap-3">
+                    <XCircle className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+                    <div>
+                      <h3 className="text-sm font-bold text-red-800">Your application was rejected</h3>
+                      <p className="text-sm text-red-700 mt-1">{applicationRejectionReason}</p>
+                      <p className="text-xs text-red-600 mt-2">Please correct the information below or upload the correct documents in the next step, then resubmit your application.</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
                   { name: 'name', label: 'Full Name', type: 'text', required: true },
@@ -526,7 +562,7 @@ const ScholarshipApplication = () => {
                     Your application has been submitted successfully and is under review.
                   </p>
                   <button
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/dashboard')}
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition"
                   >
                     Go to Dashboard

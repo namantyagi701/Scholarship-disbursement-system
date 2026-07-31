@@ -3,23 +3,17 @@ import axios from "axios";
 import { AppContent } from "../context/AppContext";
 import { toast } from "react-toastify";
 import {
-  User,
-  Mail,
-  Phone,
-  ShieldCheck,
-  ShieldAlert,
-  CheckCircle,
-  XCircle,
+  CheckCircle2,
   Pencil,
   Save,
   X,
   Loader2,
   FileText,
-  CreditCard,
   BadgeCheck,
-  Calendar,
-  AlertCircle,
 } from "lucide-react";
+
+// same palette as StudentDashboard:
+// ink #16213E · gold #B8860B · green #2F6F4F · maroon #8B2E2E · paper #FAF8F3
 
 const Profile = () => {
   const { backendUrl, userData, getUserData } = useContext(AppContent);
@@ -29,12 +23,10 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [profile, setProfile] = useState(null);
 
-  // Editable fields
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
   const [aadhaarNumber, setAadhaarNumber] = useState("");
 
-  // Stats
   const [appStatus, setAppStatus] = useState(null);
   const [docCount, setDocCount] = useState(0);
 
@@ -51,13 +43,11 @@ const Profile = () => {
           setAadhaarNumber(data.user.aadhaarNumber || "");
         }
 
-        // Fetch application status
         try {
           const appRes = await axios.get(backendUrl + "/api/student/application-status");
           if (appRes.data.success) setAppStatus(appRes.data.application);
         } catch {}
 
-        // Fetch document count
         try {
           const docRes = await axios.get(backendUrl + "/api/student/documents");
           if (docRes.data.success) setDocCount(docRes.data.documents.length);
@@ -90,7 +80,6 @@ const Profile = () => {
         toast.success(data.message);
         setEditing(false);
         getUserData();
-        // Refresh profile
         const res = await axios.get(backendUrl + "/api/student/profile");
         if (res.data.success) setProfile(res.data.user);
       } else {
@@ -112,8 +101,8 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF8F3]">
+        <Loader2 className="w-6 h-6 animate-spin text-[#16213E]" />
       </div>
     );
   }
@@ -122,345 +111,270 @@ const Profile = () => {
 
   const createdDate = new Date(profile.createdAt).toLocaleDateString("en-IN", {
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 
-  return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* ---- Profile Header Card ---- */}
-        <div className="relative overflow-hidden bg-white rounded-2xl border shadow-sm">
-          {/* Banner */}
-          <div className="h-32 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
-            <div className="absolute top-6 right-6">
-              {!editing ? (
-                <button
-                  onClick={() => setEditing(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium bg-white/20 hover:bg-white/30 backdrop-blur text-white rounded-lg transition"
-                >
-                  <Pencil className="w-3.5 h-3.5" /> Edit Profile
-                </button>
-              ) : (
-                <div className="flex gap-2">
-                  <button
-                    onClick={cancelEdit}
-                    className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium bg-white/20 hover:bg-white/30 backdrop-blur text-white rounded-lg transition"
-                  >
-                    <X className="w-3.5 h-3.5" /> Cancel
-                  </button>
-                  <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-xs font-medium bg-white text-blue-700 hover:bg-blue-50 rounded-lg transition disabled:opacity-50"
-                  >
-                    {saving ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Save className="w-3.5 h-3.5" />
-                    )}
-                    Save
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+  const STATUS_INK = {
+    disbursed: "#B8860B",
+    verified: "#2F6F4F",
+    rejected: "#8B2E2E",
+    submitted: "#16213E",
+    draft: "#6B6558",
+  };
 
-          {/* Avatar + Name */}
-          <div className="px-6 pb-6">
-            <div className="flex flex-col sm:flex-row sm:items-end gap-4 -mt-12">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 border-4 border-white shadow-lg flex items-center justify-center shrink-0">
-                <span className="text-3xl font-bold text-white">
+  return (
+    <div className="min-h-screen bg-[#FAF8F3] p-4 sm:p-6 lg:p-10">
+      <div className="max-w-5xl mx-auto">
+
+        {/* ---- Identity card header ---- */}
+        <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm">
+          <div className="flex flex-wrap items-start justify-between gap-6 px-6 sm:px-8 py-6">
+            <div className="flex items-start gap-5">
+              <div className="w-16 h-16 border-2 border-[#16213E] flex items-center justify-center shrink-0">
+                <span className="font-serif-display text-2xl text-[#16213E]">
                   {profile.fullName?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               </div>
-              <div className="flex-1 pt-2">
+              <div>
+                <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-1">
+                  Registered Applicant
+                </p>
                 {editing ? (
                   <input
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="text-xl font-bold text-gray-900 border-b-2 border-blue-400 bg-transparent outline-none pb-1 w-full max-w-xs"
+                    className="font-serif-display text-xl text-[#16213E] border-b-2 border-[#B8860B] bg-transparent outline-none pb-1 w-full max-w-xs"
                   />
                 ) : (
-                  <h1 className="text-xl font-bold text-gray-900">
+                  <h1 className="font-serif-display text-xl sm:text-2xl text-[#16213E]">
                     {profile.fullName}
                   </h1>
                 )}
-                <div className="flex flex-wrap items-center gap-3 mt-1">
-                  <span className="inline-flex items-center gap-1 text-xs text-gray-500">
-                    <Calendar className="w-3 h-3" /> Joined {createdDate}
-                  </span>
-                  <span className="capitalize inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
-                    {profile.role}
-                  </span>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-[#6B6558]">
+                  <span className="font-mono-data">Since {createdDate}</span>
+                  <span className="capitalize">{profile.role}</span>
                   <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full ${
-                      profile.accountStatus === "active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className="inline-flex items-center gap-1 font-medium"
+                    style={{
+                      color: profile.accountStatus === "active" ? "#2F6F4F" : "#8B2E2E",
+                    }}
                   >
-                    {profile.accountStatus === "active" ? (
-                      <CheckCircle className="w-3 h-3" />
-                    ) : (
-                      <XCircle className="w-3 h-3" />
-                    )}
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{
+                        backgroundColor:
+                          profile.accountStatus === "active" ? "#2F6F4F" : "#8B2E2E",
+                      }}
+                    />
                     {profile.accountStatus}
                   </span>
                 </div>
               </div>
             </div>
+
+            {!editing ? (
+              <button
+                onClick={() => setEditing(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium border border-[#16213E] text-[#16213E] hover:bg-[#16213E] hover:text-white rounded-sm transition"
+              >
+                <Pencil className="w-3.5 h-3.5" /> Edit
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={cancelEdit}
+                  className="inline-flex items-center gap-1 px-3 py-2 text-xs font-medium border border-[#DCD6C8] text-[#6B6558] hover:bg-[#F3F0E8] rounded-sm transition"
+                >
+                  <X className="w-3.5 h-3.5" /> Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="inline-flex items-center gap-1 px-4 py-2 text-xs font-medium bg-[#16213E] hover:bg-[#0F1729] text-white rounded-sm transition disabled:opacity-50"
+                >
+                  {saving ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Save className="w-3.5 h-3.5" />
+                  )}
+                  Save
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* ---- Left: Contact & Security ---- */}
+        <div className="mt-6 grid lg:grid-cols-3 gap-6">
+          {/* ---- Left: ledgers ---- */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Contact Information */}
-            <div className="bg-white rounded-2xl border shadow-sm p-6">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-5">
+
+            {/* Contact */}
+            <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-6 sm:p-8">
+              <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-4">
                 Contact Information
-              </h2>
-              <div className="space-y-4">
-                {/* Email */}
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
-                    <Mail className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">
-                      Email
-                    </p>
-                    <p className="text-sm font-medium text-gray-800 truncate">
+              </p>
+              <div className="divide-y divide-[#EDE9DE]">
+                <div className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Email</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-[#16213E] font-medium truncate">
                       {profile.email}
-                    </p>
+                    </span>
+                    <span
+                      className="text-[10px] font-medium uppercase tracking-wide"
+                      style={{ color: profile.isEmailVerified ? "#2F6F4F" : "#B8860B" }}
+                    >
+                      {profile.isEmailVerified ? "Verified" : "Unverified"}
+                    </span>
                   </div>
-                  {profile.isEmailVerified ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                      <CheckCircle className="w-3 h-3" /> Verified
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">
-                      <AlertCircle className="w-3 h-3" /> Unverified
-                    </span>
-                  )}
                 </div>
 
-                {/* Mobile */}
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
-                    <Phone className="w-5 h-5 text-purple-600" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">
-                      Mobile
-                    </p>
-                    {editing ? (
-                      <input
-                        type="tel"
-                        value={mobile}
-                        onChange={(e) => setMobile(e.target.value)}
-                        className="text-sm font-medium text-gray-800 border-b border-blue-300 bg-transparent outline-none w-full max-w-xs"
-                      />
-                    ) : (
-                      <p className="text-sm font-medium text-gray-800">
-                        {profile.mobile || "—"}
-                      </p>
-                    )}
-                  </div>
+                <div className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Mobile</span>
+                  {editing ? (
+                    <input
+                      type="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      className="text-sm font-medium text-[#16213E] border-b border-[#B8860B] bg-transparent outline-none w-40 text-right"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium text-[#16213E]">
+                      {profile.mobile || "—"}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Aadhaar & Security */}
-            <div className="bg-white rounded-2xl border shadow-sm p-6">
-              <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-5">
-                Identity & Security
-              </h2>
-              <div className="space-y-4">
-                {/* Aadhaar */}
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      profile.aadhaarVerified
-                        ? "bg-green-50"
-                        : "bg-yellow-50"
-                    }`}
-                  >
-                    {profile.aadhaarVerified ? (
-                      <ShieldCheck className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <ShieldAlert className="w-5 h-5 text-yellow-600" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">
-                      Aadhaar Number
-                    </p>
+            {/* Identity & Security */}
+            <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-6 sm:p-8">
+              <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-4">
+                Identity &amp; Security
+              </p>
+              <div className="divide-y divide-[#EDE9DE]">
+                <div className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">Aadhaar</span>
+                  <div className="flex items-center gap-2">
                     {editing && !profile.aadhaarVerified ? (
                       <input
                         type="text"
                         maxLength={12}
                         value={aadhaarNumber}
-                        onChange={(e) =>
-                          setAadhaarNumber(e.target.value.replace(/\D/g, ""))
-                        }
-                        placeholder="Enter 12-digit Aadhaar"
-                        className="text-sm font-medium text-gray-800 border-b border-blue-300 bg-transparent outline-none w-full max-w-xs tracking-widest"
+                        onChange={(e) => setAadhaarNumber(e.target.value.replace(/\D/g, ""))}
+                        placeholder="12-digit number"
+                        className="font-mono-data text-sm text-[#16213E] border-b border-[#B8860B] bg-transparent outline-none w-40 text-right tracking-widest"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-800 tracking-wide">
+                      <span className="font-mono-data text-sm text-[#16213E]">
                         {profile.aadhaarNumber
                           ? `${profile.aadhaarNumber.slice(0, 4)} •••• ${profile.aadhaarNumber.slice(-4)}`
                           : "Not provided"}
-                      </p>
+                      </span>
                     )}
+                    <span
+                      className="text-[10px] font-medium uppercase tracking-wide"
+                      style={{ color: profile.aadhaarVerified ? "#2F6F4F" : "#B8860B" }}
+                    >
+                      {profile.aadhaarVerified ? "Verified" : "Pending"}
+                    </span>
                   </div>
-                  {profile.aadhaarVerified ? (
-                    <span className="inline-flex items-center gap-1 text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                      <CheckCircle className="w-3 h-3" /> Verified
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-xs text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">
-                      <AlertCircle className="w-3 h-3" /> Pending
-                    </span>
-                  )}
                 </div>
 
-                {/* Email Verification */}
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      profile.isEmailVerified ? "bg-green-50" : "bg-yellow-50"
-                    }`}
+                <div className="flex items-center justify-between gap-4 py-3">
+                  <span className="text-xs text-[#8A8374] uppercase tracking-wide">
+                    Email Verification
+                  </span>
+                  <span
+                    className="text-sm font-medium inline-flex items-center gap-1.5"
+                    style={{ color: profile.isEmailVerified ? "#2F6F4F" : "#B8860B" }}
                   >
-                    <BadgeCheck
-                      className={`w-5 h-5 ${
-                        profile.isEmailVerified
-                          ? "text-green-600"
-                          : "text-yellow-600"
-                      }`}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-400 uppercase tracking-wide">
-                      Email Verification
-                    </p>
-                    <p className="text-sm font-medium text-gray-800">
-                      {profile.isEmailVerified
-                        ? "Email is verified"
-                        : "Email not yet verified"}
-                    </p>
-                  </div>
+                    <BadgeCheck className="w-3.5 h-3.5" />
+                    {profile.isEmailVerified ? "Confirmed" : "Not confirmed"}
+                  </span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* ---- Right: Stats & Quick Info ---- */}
+          {/* ---- Right: status stamps ---- */}
           <div className="space-y-6">
-            {/* Application Status */}
-            <div className="bg-white rounded-2xl border shadow-sm p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-blue-600" />
-                <h3 className="font-bold text-gray-900 text-sm">
-                  Application
-                </h3>
-              </div>
+
+            {/* Application status */}
+            <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
+              <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-4">
+                Application
+              </p>
               {appStatus ? (
                 <div className="space-y-3">
-                  <div>
-                    <p className="text-xs text-gray-400">Status</p>
-                    <span
-                      className={`inline-flex items-center gap-1 mt-1 px-2.5 py-1 text-xs font-medium rounded-full border ${
-                        appStatus.status === "disbursed"
-                          ? "bg-emerald-100 text-emerald-700 border-emerald-200"
-                          : appStatus.status === "verified"
-                          ? "bg-green-100 text-green-700 border-green-200"
-                          : appStatus.status === "rejected"
-                          ? "bg-red-100 text-red-700 border-red-200"
-                          : appStatus.status === "submitted"
-                          ? "bg-blue-100 text-blue-700 border-blue-200"
-                          : "bg-yellow-100 text-yellow-700 border-yellow-200"
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          appStatus.status === "disbursed"
-                            ? "bg-emerald-500"
-                            : appStatus.status === "verified"
-                            ? "bg-green-500"
-                            : appStatus.status === "rejected"
-                            ? "bg-red-500"
-                            : appStatus.status === "submitted"
-                            ? "bg-blue-500"
-                            : "bg-yellow-500"
-                        }`}
-                      />
-                      {appStatus.status.charAt(0).toUpperCase() +
-                        appStatus.status.slice(1)}
+                  <div
+                    className="inline-block border-2 rounded px-3 py-1.5 -rotate-2"
+                    style={{
+                      borderColor: STATUS_INK[appStatus.status] || "#6B6558",
+                      color: STATUS_INK[appStatus.status] || "#6B6558",
+                    }}
+                  >
+                    <span className="font-serif-display text-sm font-semibold uppercase tracking-wide">
+                      {appStatus.status}
                     </span>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-400">Last Updated</p>
-                    <p className="text-sm font-medium text-gray-700">
-                      {new Date(appStatus.updatedAt).toLocaleDateString(
-                        "en-IN",
-                        { day: "numeric", month: "short", year: "numeric" }
-                      )}
-                    </p>
-                  </div>
+                  <p className="text-xs text-[#8A8374]">
+                    Updated{" "}
+                    {new Date(appStatus.updatedAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </p>
                 </div>
               ) : (
-                <p className="text-sm text-gray-400">No application yet</p>
+                <p className="text-sm text-[#8A8374]">No application yet</p>
               )}
             </div>
 
             {/* Documents */}
-            <div className="bg-white rounded-2xl border shadow-sm p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-purple-600" />
-                <h3 className="font-bold text-gray-900 text-sm">Documents</h3>
+            <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText className="w-4 h-4 text-[#16213E]" strokeWidth={1.5} />
+                <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374]">
+                  Documents
+                </p>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-bold text-gray-900">
+              <div className="flex items-baseline gap-1.5">
+                <span className="font-serif-display text-3xl text-[#16213E]">
                   {docCount}
                 </span>
-                <span className="text-sm text-gray-400">/ 6 uploaded</span>
+                <span className="text-sm text-[#8A8374]">of 6 filed</span>
               </div>
-              <div className="w-full bg-gray-200 h-1.5 rounded-full mt-3">
+              <div className="w-full bg-[#EDE9DE] h-1 rounded-full mt-3">
                 <div
-                  className="bg-purple-500 h-1.5 rounded-full transition-all"
-                  style={{ width: `${(docCount / 6) * 100}%` }}
+                  className="h-1 rounded-full transition-all"
+                  style={{ width: `${(docCount / 6) * 100}%`, backgroundColor: "#B8860B" }}
                 />
               </div>
             </div>
 
-            {/* Account Info */}
-            <div className="bg-white rounded-2xl border shadow-sm p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <CreditCard className="w-5 h-5 text-emerald-600" />
-                <h3 className="font-bold text-gray-900 text-sm">Account</h3>
-              </div>
-              <div className="space-y-3">
-                <div>
-                  <p className="text-xs text-gray-400">Account Status</p>
-                  <p
-                    className={`text-sm font-semibold capitalize ${
-                      profile.accountStatus === "active"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
+            {/* Account */}
+            <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
+              <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-3">
+                Account
+              </p>
+              <div className="space-y-2.5">
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs text-[#8A8374]">Status</span>
+                  <span
+                    className="text-sm font-semibold capitalize inline-flex items-center gap-1"
+                    style={{ color: profile.accountStatus === "active" ? "#2F6F4F" : "#8B2E2E" }}
                   >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
                     {profile.accountStatus}
-                  </p>
+                  </span>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-400">Member Since</p>
-                  <p className="text-sm font-medium text-gray-700">
-                    {createdDate}
-                  </p>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-xs text-[#8A8374]">Member Since</span>
+                  <span className="font-mono-data text-sm text-[#16213E]">{createdDate}</span>
                 </div>
               </div>
             </div>

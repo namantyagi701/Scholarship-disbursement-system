@@ -43,6 +43,17 @@ export const updateProfile = async (req, res) => {
 
         // Aadhaar editable only if not verified
         if (!user.aadhaarVerified && aadhaarNumber) {
+            // Check if another user already registered with this Aadhaar
+            const existingAadhaar = await userModel.findOne({
+                aadhaarNumber,
+                _id: { $ne: user._id }
+            });
+            if (existingAadhaar) {
+                return res.status(409).json({
+                    success: false,
+                    message: "This Aadhaar number is already registered with another account"
+                });
+            }
             user.aadhaarNumber = aadhaarNumber;
         }
 
@@ -76,6 +87,18 @@ export const verifyAadhaar = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "Aadhaar already verified"
+            });
+        }
+
+        // Check if another user already registered with this Aadhaar
+        const existingAadhaar = await userModel.findOne({
+            aadhaarNumber,
+            _id: { $ne: user._id }
+        });
+        if (existingAadhaar) {
+            return res.status(409).json({
+                success: false,
+                message: "This Aadhaar number is already registered with another account"
             });
         }
 
@@ -116,7 +139,7 @@ export const saveApplication = async (req, res) => {
         });
 
         if (application) {
-            if (application.status !== "draft") {
+            if (!["draft", "rejected"].includes(application.status)) {
                 return res.status(400).json({
                     success: false,
                     message: "Cannot update after submission"
@@ -173,7 +196,7 @@ export const submitApplication = async (req, res) => {
             });
         }
 
-        if (application.status !== "draft") {
+        if (!["draft", "rejected"].includes(application.status)) {
             return res.status(400).json({
                 success: false,
                 message: "Application already submitted"
@@ -204,6 +227,9 @@ export const submitApplication = async (req, res) => {
         }
 
         application.status = "submitted";
+        application.rejectionReason = undefined;
+        application.sagVerifiedBy = undefined;
+        application.sagVerifiedAt = undefined;
         await application.save();
 
         return res.json({

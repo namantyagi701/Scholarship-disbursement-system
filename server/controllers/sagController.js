@@ -117,3 +117,51 @@ export const rejectApplication = async (req, res) => {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
+
+// Verify an individual document
+export const verifyDocument = async (req, res) => {
+    try {
+        const document = await documentModel.findById(req.params.id);
+
+        if (!document) {
+            return res.status(404).json({ success: false, message: "Document not found" });
+        }
+
+        document.verificationStatus = "approved";
+        document.rejectionReason = undefined;
+        document.verifiedBy = req.user._id;
+        document.verifiedAt = new Date();
+        await document.save();
+
+        return res.json({ success: true, message: "Document verified successfully", document });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Reject an individual document
+export const rejectDocument = async (req, res) => {
+    try {
+        const { reason } = req.body;
+
+        const document = await documentModel.findById(req.params.id);
+
+        if (!document) {
+            return res.status(404).json({ success: false, message: "Document not found" });
+        }
+
+        if (!reason) {
+            return res.status(400).json({ success: false, message: "Rejection reason is required" });
+        }
+
+        document.verificationStatus = "rejected";
+        document.rejectionReason = reason;
+        document.verifiedBy = req.user._id;
+        document.verifiedAt = new Date();
+        await document.save();
+
+        return res.json({ success: true, message: "Document rejected", document });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};

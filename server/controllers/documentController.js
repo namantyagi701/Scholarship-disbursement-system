@@ -40,7 +40,7 @@ export const uploadDocument = async (req, res) => {
     }
 
     // 🚫 Prevent upload after submission
-    if (application.status !== "draft") {
+    if (!["draft", "rejected"].includes(application.status)) {
       return res.status(400).json({
         success: false,
         message: "Cannot upload after submission"

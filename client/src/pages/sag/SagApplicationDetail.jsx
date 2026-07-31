@@ -27,6 +27,9 @@ const SagApplicationDetail = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [showRejectModal, setShowRejectModal] = useState(false);
+  const [docRejectModal, setDocRejectModal] = useState(false);
+  const [docRejectReason, setDocRejectReason] = useState("");
+  const [currentDocId, setCurrentDocId] = useState(null);
 
   useEffect(() => {
     fetchApplication();
@@ -83,6 +86,44 @@ const SagApplicationDetail = () => {
       toast.error(error.response?.data?.message || "Rejection failed");
     } finally {
       setActionLoading(false);
+    }
+  };
+
+  const handleVerifyDocument = async (docId) => {
+    try {
+      const { data } = await axios.put(backendUrl + `/api/sag/document/verify/${docId}`);
+      if (data.success) {
+        toast.success(data.message);
+        setDocuments((prevDocs) =>
+          prevDocs.map((doc) => (doc._id === docId ? data.document : doc))
+        );
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to verify document");
+    }
+  };
+
+  const handleRejectDocument = async () => {
+    if (!docRejectReason.trim()) {
+      toast.error("Please provide a rejection reason");
+      return;
+    }
+    try {
+      const { data } = await axios.put(backendUrl + `/api/sag/document/reject/${currentDocId}`, { reason: docRejectReason });
+      if (data.success) {
+        toast.success(data.message);
+        setDocuments((prevDocs) =>
+          prevDocs.map((doc) => (doc._id === currentDocId ? data.document : doc))
+        );
+        setDocRejectModal(false);
+        setDocRejectReason("");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to reject document");
     }
   };
 
@@ -184,22 +225,61 @@ const SagApplicationDetail = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {documents.map((doc) => (
-              <a
+              <div
                 key={doc._id}
-                href={doc.cloudinaryUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-200 transition-colors group"
+                className="flex flex-col p-4 border border-gray-200 rounded-lg bg-white"
               >
-                <FileText className="w-8 h-8 text-blue-500 group-hover:text-blue-600" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 capitalize truncate">
-                    {doc.documentType?.replace(/_/g, " ")}
-                  </p>
-                  <p className="text-xs text-gray-400">{doc.fileFormat || "Document"}</p>
+                <div className="flex items-start gap-3">
+                  <FileText className="w-8 h-8 text-blue-500 mt-1" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 capitalize truncate">
+                      {doc.documentType?.replace(/_/g, " ")}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Status:{" "}
+                      <span className={`font-medium ${
+                        doc.verificationStatus === 'approved' ? 'text-green-600' :
+                        doc.verificationStatus === 'rejected' ? 'text-red-600' :
+                        'text-yellow-600'
+                      }`}>
+                        {doc.verificationStatus}
+                      </span>
+                    </p>
+                    {doc.verificationStatus === 'rejected' && doc.rejectionReason && (
+                      <p className="text-xs text-red-500 mt-1">Reason: {doc.rejectionReason}</p>
+                    )}
+                  </div>
+                  <a
+                    href={doc.cloudinaryUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-gray-400 hover:text-blue-500"
+                    title="View Document"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
                 </div>
-                <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
-              </a>
+                
+                {isActionable && (
+                  <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+                    <button
+                      onClick={() => handleVerifyDocument(doc._id)}
+                      className="flex-1 px-3 py-1.5 text-xs font-medium text-green-700 bg-green-50 rounded hover:bg-green-100 transition-colors"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => {
+                        setCurrentDocId(doc._id);
+                        setDocRejectModal(true);
+                      }}
+                      className="flex-1 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-50 rounded hover:bg-red-100 transition-colors"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         )}
@@ -266,6 +346,41 @@ const SagApplicationDetail = () => {
                 className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-60"
               >
                 {actionLoading ? "Rejecting..." : "Confirm Reject"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Doc Reject Modal */}
+      {docRejectModal && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Reject Document</h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Provide a reason for rejecting this document.
+            </p>
+            <textarea
+              value={docRejectReason}
+              onChange={(e) => setDocRejectReason(e.target.value)}
+              placeholder="Enter rejection reason (e.g., blurry image)..."
+              rows={4}
+              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
+            />
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setDocRejectModal(false);
+                  setDocRejectReason("");
+                }}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectDocument}
+                className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+              >
+                Confirm Reject
               </button>
             </div>
           </div>

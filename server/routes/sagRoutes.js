@@ -6,7 +6,9 @@ import {
   getAllApplications,
   getSingleApplication,
   verifyApplication,
-  rejectApplication
+  rejectApplication,
+  verifyDocument,
+  rejectDocument
 } from "../controllers/sagController.js";
 
 const sagRouter = express.Router();
@@ -21,5 +23,9 @@ sagRouter.get("/application/:id", getSingleApplication);
 sagRouter.put("/verify/:id", verifyApplication);
 
 sagRouter.put("/reject/:id", rejectApplication);
+
+sagRouter.put("/document/verify/:id", verifyDocument);
+
+sagRouter.put("/document/reject/:id", rejectDocument);
 
 export default sagRouter;

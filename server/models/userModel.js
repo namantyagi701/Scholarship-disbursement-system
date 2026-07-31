@@ -80,7 +80,24 @@ const userSchema = new mongoose.Schema({
     default: 0
   },
 
-  // �🚦 Account control (admin can suspend/block users)
+  // 🏦 Bank details (saved to profile, pre-filled into applications)
+  bankAccountNumber: {
+    type: String,
+    trim: true
+  },
+
+  ifscCode: {
+    type: String,
+    trim: true,
+    uppercase: true
+  },
+
+  accountHolderName: {
+    type: String,
+    trim: true
+  },
+
+  // 🚦 Account control (admin can suspend/block users)
   accountStatus: {
     type: String,
     enum: ["active", "suspended", "blocked"],

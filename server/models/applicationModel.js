@@ -41,6 +41,28 @@ const applicationSchema = new mongoose.Schema({
     type: String
   },
 
+  // 💵 Scholarship amount requested
+  amount: {
+    type: Number
+  },
+
+  // 🏦 Bank details (filled by student, shown to finance)
+  bankAccountNumber: {
+    type: String,
+    trim: true
+  },
+
+  ifscCode: {
+    type: String,
+    trim: true,
+    uppercase: true
+  },
+
+  accountHolderName: {
+    type: String,
+    trim: true
+  },
+
   // 💰 Finance details
   transactionId: {
     type: String

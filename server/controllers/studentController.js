@@ -30,7 +30,7 @@ export const getProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const { fullName, mobile, aadhaarNumber } = req.body;
+        const { fullName, mobile, aadhaarNumber, bankAccountNumber, ifscCode, accountHolderName } = req.body;
 
         const user = await userModel.findById(req.user._id);
 
@@ -40,6 +40,11 @@ export const updateProfile = async (req, res) => {
 
         user.fullName = fullName || user.fullName;
         user.mobile = mobile || user.mobile;
+
+        // Bank details (always editable)
+        if (bankAccountNumber !== undefined) user.bankAccountNumber = bankAccountNumber;
+        if (ifscCode !== undefined) user.ifscCode = ifscCode;
+        if (accountHolderName !== undefined) user.accountHolderName = accountHolderName;
 
         // Aadhaar editable only if not verified
         if (!user.aadhaarVerified && aadhaarNumber) {
@@ -125,7 +130,7 @@ export const verifyAadhaar = async (req, res) => {
 
 export const saveApplication = async (req, res) => {
     try {
-        const { formData } = req.body; // dynamic key-value pairs from the form
+        const { formData, amount, bankAccountNumber, ifscCode, accountHolderName } = req.body;
 
         if (!formData || typeof formData !== "object") {
             return res.status(400).json({
@@ -151,6 +156,12 @@ export const saveApplication = async (req, res) => {
                 application.formData.set(key, value);
             }
 
+            // Update bank & amount details
+            if (amount !== undefined) application.amount = amount;
+            if (bankAccountNumber !== undefined) application.bankAccountNumber = bankAccountNumber;
+            if (ifscCode !== undefined) application.ifscCode = ifscCode;
+            if (accountHolderName !== undefined) application.accountHolderName = accountHolderName;
+
             await application.save();
 
             return res.json({
@@ -164,7 +175,11 @@ export const saveApplication = async (req, res) => {
         application = await applicationModel.create({
             student: req.user._id,
             status: "draft",
-            formData
+            formData,
+            amount,
+            bankAccountNumber,
+            ifscCode,
+            accountHolderName
         });
 
         return res.status(201).json({
@@ -223,6 +238,14 @@ export const submitApplication = async (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: "Verify Aadhaar before submitting application"
+            });
+        }
+
+        // Validate bank details are present before submission
+        if (!application.bankAccountNumber || !application.ifscCode || !application.accountHolderName) {
+            return res.status(400).json({
+                success: false,
+                message: "Bank details (account number, IFSC code, account holder name) are required before submission"
             });
         }
 
@@ -291,6 +314,10 @@ export const getPaymentDetails = async (req, res) => {
 
         return res.json({
             success: true,
+            amount: application.amount,
+            bankAccountNumber: application.bankAccountNumber,
+            ifscCode: application.ifscCode,
+            accountHolderName: application.accountHolderName,
             transactionId: application.transactionId,
             disbursedAt: application.disbursedAt
         });

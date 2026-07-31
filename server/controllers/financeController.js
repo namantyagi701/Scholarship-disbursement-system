@@ -6,7 +6,7 @@ export const getApprovedApplications = async (req, res) => {
     try {
         const applications = await applicationModel
             .find({ status: { $in: ["verified", "disbursed"] } })
-            .populate("student", "fullName email mobile aadhaarNumber")
+            .populate("student", "fullName email mobile aadhaarNumber bankAccountNumber ifscCode accountHolderName")
             .populate("sagVerifiedBy", "fullName email")
             .sort({ sagVerifiedAt: -1 });
 
@@ -67,7 +67,7 @@ export const getPaymentHistory = async (req, res) => {
     try {
         const applications = await applicationModel
             .find({ status: "disbursed" })
-            .populate("student", "fullName email mobile")
+            .populate("student", "fullName email mobile bankAccountNumber ifscCode accountHolderName")
             .populate("disbursedBy", "fullName email")
             .sort({ disbursedAt: -1 });
 

@@ -41,10 +41,22 @@ export const updateProfile = async (req, res) => {
         user.fullName = fullName || user.fullName;
         user.mobile = mobile || user.mobile;
 
-        // Bank details (always editable)
-        if (bankAccountNumber !== undefined) user.bankAccountNumber = bankAccountNumber;
-        if (ifscCode !== undefined) user.ifscCode = ifscCode;
-        if (accountHolderName !== undefined) user.accountHolderName = accountHolderName;
+        // Bank details — locked once application is submitted/verified/disbursed
+        if (bankAccountNumber !== undefined || ifscCode !== undefined || accountHolderName !== undefined) {
+            const activeApplication = await applicationModel.findOne({
+                student: user._id,
+                status: { $in: ["submitted", "verified", "disbursed"] }
+            });
+            if (activeApplication) {
+                return res.status(400).json({
+                    success: false,
+                    message: "Bank details cannot be changed while your application is under review or disbursed"
+                });
+            }
+            if (bankAccountNumber !== undefined) user.bankAccountNumber = bankAccountNumber;
+            if (ifscCode !== undefined) user.ifscCode = ifscCode;
+            if (accountHolderName !== undefined) user.accountHolderName = accountHolderName;
+        }
 
         // Aadhaar editable only if not verified
         if (!user.aadhaarVerified && aadhaarNumber) {
@@ -130,7 +142,7 @@ export const verifyAadhaar = async (req, res) => {
 
 export const saveApplication = async (req, res) => {
     try {
-        const { formData, amount, bankAccountNumber, ifscCode, accountHolderName } = req.body;
+        const { formData, bankAccountNumber, ifscCode, accountHolderName } = req.body;
 
         if (!formData || typeof formData !== "object") {
             return res.status(400).json({
@@ -156,8 +168,7 @@ export const saveApplication = async (req, res) => {
                 application.formData.set(key, value);
             }
 
-            // Update bank & amount details
-            if (amount !== undefined) application.amount = amount;
+            // Update bank details (amount is set by SAG only)
             if (bankAccountNumber !== undefined) application.bankAccountNumber = bankAccountNumber;
             if (ifscCode !== undefined) application.ifscCode = ifscCode;
             if (accountHolderName !== undefined) application.accountHolderName = accountHolderName;
@@ -176,7 +187,6 @@ export const saveApplication = async (req, res) => {
             student: req.user._id,
             status: "draft",
             formData,
-            amount,
             bankAccountNumber,
             ifscCode,
             accountHolderName

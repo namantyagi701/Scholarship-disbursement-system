@@ -66,6 +66,16 @@ export const verifyApplication = async (req, res) => {
             });
         }
 
+        // SAG sets the scholarship amount at approval time
+        const { amount } = req.body;
+        if (!amount || typeof amount !== "number" || amount <= 0) {
+            return res.status(400).json({
+                success: false,
+                message: "A valid scholarship amount is required to approve the application"
+            });
+        }
+
+        application.amount = amount;
         application.status = "verified";
         application.sagVerifiedBy = req.user._id;
         application.sagVerifiedAt = new Date();

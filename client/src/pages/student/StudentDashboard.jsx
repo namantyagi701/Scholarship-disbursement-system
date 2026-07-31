@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { AppContent } from "../context/AppContext";
+import { AppContent } from "../../context/AppContext";
 import {
   CheckCircle2,
   FileText,
@@ -15,8 +15,8 @@ import {
   XCircle,
 } from "lucide-react";
 
-import StatusStamp from "../components/ui/StatusStamp";
-import LedgerRow from "../components/ui/LedgerRow";
+import StatusStamp from "../../components/ui/StatusStamp";
+import LedgerRow from "../../components/ui/LedgerRow";
 
 const StudentDashboard = () => {
   const navigate = useNavigate();

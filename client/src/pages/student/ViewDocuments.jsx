@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { AppContent } from "../context/AppContext";
+import { AppContent } from "../../context/AppContext";
 import {
   FileText,
   CheckCircle,

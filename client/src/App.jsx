@@ -8,15 +8,14 @@ import EmailVerify from './pages/EmailVerify'
 import ResetPassword from './pages/ResetPassword'
 import { ToastContainer } from 'react-toastify';
 import About from './pages/About'
-import MainLayout from './Layouts/LayoutMain'
-import StudentDashboard from './pages/StudentDasboard' // Note: actual filename has typo
-import ScholarshipApplication from './pages/ScholarshipApplication'
-
-import ViewDocuments from './pages/ViewDocuments'
-import UploadDocs from './pages/UploadDocs'
+import MainLayout from './layouts/LayoutMain'
+import StudentDashboard from './pages/student/StudentDashboard'
+import ScholarshipApplication from './pages/student/ScholarshipApplication'
+import ViewDocuments from './pages/student/ViewDocuments'
+import UploadDocs from './pages/student/UploadDocs'
 import LandingPage from './pages/LandingPage'
-import ApplicationStatus from './pages/ApplicationStatus'
-import Profile from './pages/Profile'
+import ApplicationStatus from './pages/student/ApplicationStatus'
+import Profile from './pages/student/Profile'
 
 // SAG pages
 import SagApplications from './pages/sag/SagApplications'

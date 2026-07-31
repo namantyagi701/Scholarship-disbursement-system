@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { AppContent } from "../context/AppContext";
+import { AppContent } from "../../context/AppContext";
 import { toast } from "react-toastify";
 import {
   CheckCircle2,
@@ -12,8 +12,8 @@ import {
   BadgeCheck,
 } from "lucide-react";
 
-import StatusStamp from "../components/ui/StatusStamp";
-import LedgerRow from "../components/ui/LedgerRow";
+import StatusStamp from "../../components/ui/StatusStamp";
+import LedgerRow from "../../components/ui/LedgerRow";
 
 // same palette as StudentDashboard:
 // ink #16213E · gold #B8860B · green #2F6F4F · maroon #8B2E2E · paper #FAF8F3

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { AppContent } from '../context/AppContext';
+import { AppContent } from '../../context/AppContext';
 import { toast } from 'react-toastify';
 import {
   ShieldCheck,
@@ -12,10 +12,10 @@ import {
   Loader2,
 } from 'lucide-react';
 
-import AadhaarStep from '../components/application/AadhaarStep';
-import ApplicationFormStep from '../components/application/ApplicationFormStep';
-import DocumentUploadStep from '../components/application/DocumentUploadStep';
-import ReviewSubmitStep from '../components/application/ReviewSubmitStep';
+import AadhaarStep from '../../components/application/AadhaarStep';
+import ApplicationFormStep from '../../components/application/ApplicationFormStep';
+import DocumentUploadStep from '../../components/application/DocumentUploadStep';
+import ReviewSubmitStep from '../../components/application/ReviewSubmitStep';
 
 const STEPS = [
   { label: 'Aadhaar Verification', icon: ShieldCheck },

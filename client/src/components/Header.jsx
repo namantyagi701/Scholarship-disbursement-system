@@ -10,11 +10,11 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
 
   const handleLogout = async () => {
     await logoutUser();
-    navigate('/');
+    navigate('/', { replace: true });
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <header className="sticky top-0 z-50 bg-[#FFFEFB] border-b border-[#DCD6C8]">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
         <div className="flex justify-between items-center h-16">
           {/* Left: Hamburger + Logo */}
@@ -22,7 +22,7 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
             {isLoggedin && onMenuToggle && (
               <button
                 onClick={onMenuToggle}
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors relative right-30"
+                className="p-2 text-[#16213E]/60 hover:text-[#16213E] hover:bg-[#FAF8F3] rounded-sm transition-colors relative right-30"
                 aria-label="Toggle sidebar"
               >
                 <Menu className="w-6 h-6" />
@@ -30,11 +30,10 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
             )}
             <Link to={isLoggedin ? '/home' : '/'} className="flex items-center group">
             <div className="relative">
-              <GraduationCap className="w-8 h-8 text-blue-600 transition-transform group-hover:scale-110" />
-              <div className="absolute -inset-1 bg-blue-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <GraduationCap className="w-8 h-8 text-[#16213E] transition-transform group-hover:scale-110" />
             </div>
             <div className="ml-3">
-              <div className="text-xl font-bold text-blue-600">
+              <div className="font-mono-data text-sm font-semibold tracking-wide text-[#16213E]">
                 SSP
               </div>
             </div>
@@ -71,10 +70,10 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-all duration-200 relative group"
+                  className="px-4 py-2 text-sm font-medium text-[#16213E]/60 hover:text-[#16213E] hover:bg-[#FAF8F3] rounded-sm transition-all duration-200 relative group"
                 >
                   {item.name}
-                  <div className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-300"></div>
+                  <div className="absolute bottom-0 left-0 w-0 h-px bg-[#B8860B] group-hover:w-full transition-all duration-300"></div>
                 </Link>
               ));})()}
             </nav>
@@ -85,36 +84,36 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
             {isLoggedin ? (
               <div className="flex items-center space-x-3">
                 {/* User Profile */}
-                <div className="hidden sm:flex items-center space-x-3 bg-gray-50 rounded-full px-3 py-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                <div className="hidden sm:flex items-center space-x-3 bg-[#FAF8F3] border border-[#DCD6C8] rounded-sm px-3 py-2">
+                  <div className="w-8 h-8 bg-[#16213E] rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-[#FFFEFB]" />
                   </div>
                   <div className="text-sm">
-                    <div className="font-medium text-gray-900">{userData?.fullName || 'User'}</div>
-                    <div className="text-xs text-gray-500 capitalize">{userData?.role || 'Student'}</div>
+                    <div className="font-medium text-[#16213E]">{userData?.fullName || 'User'}</div>
+                    <div className="font-mono-data text-[10px] tracking-wide text-[#16213E]/50 uppercase">{userData?.role || 'Student'}</div>
                   </div>
                 </div>
                 
                 {/* Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="flex items-center space-x-2 bg-[#16213E] hover:bg-[#B8860B] text-white px-4 py-2 rounded-sm font-medium transition-colors duration-200"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Logout</span>
+                  <span className="hidden sm:inline text-sm">Logout</span>
                 </button>
               </div>
             ) : (
               <div className="flex items-center space-x-3">
                 <button
                   onClick={onLoginClick}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg border border-gray-200 transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium text-[#16213E] hover:text-[#B8860B] border border-[#DCD6C8] hover:border-[#B8860B] rounded-sm transition-all duration-200"
                 >
                   Login
                 </button>
                 <button
                   onClick={onSignupClick}
-                  className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="px-4 py-2 text-sm font-medium text-white bg-[#16213E] hover:bg-[#B8860B] rounded-sm transition-colors duration-200"
                 >
                   Sign Up
                 </button>
@@ -125,7 +124,7 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
             {isLoggedin && (
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="md:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                className="md:hidden p-2 text-[#16213E]/60 hover:text-[#16213E] hover:bg-[#FAF8F3] rounded-sm transition-colors"
               >
                 {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -135,7 +134,7 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
 
         {/* Mobile Navigation */}
         {isLoggedin && isMenuOpen && (
-          <div className="md:hidden border-t border-gray-200 py-4">
+          <div className="md:hidden border-t border-[#DCD6C8] py-4">
             <nav className="flex flex-col space-y-2">
               {(() => {
                 const role = userData?.role || 'student';
@@ -165,7 +164,7 @@ const Header = ({ onLoginClick, onSignupClick, onMenuToggle }) => {
                   key={item.name}
                   to={item.path}
                   onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-3 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors"
+                  className="px-4 py-3 text-sm font-medium text-[#16213E]/60 hover:text-[#16213E] hover:bg-[#FAF8F3] rounded-sm transition-colors"
                 >
                   {item.name}
                 </Link>

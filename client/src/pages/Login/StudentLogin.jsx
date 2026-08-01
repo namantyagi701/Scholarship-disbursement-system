@@ -3,9 +3,66 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AppContent } from '../../context/AppContext';
 import { toast } from 'react-toastify';
-import { Eye, EyeOff, GraduationCap, Mail, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
 
+/* ------------------------------------------------------------------ */
+/*  Shared SVG line-art motif — abstract topographic contour lines     */
+/* ------------------------------------------------------------------ */
+const ContourLines = () => (
+  <svg
+    className="absolute bottom-0 left-0 w-full"
+    style={{ height: '38%' }}
+    viewBox="0 0 1440 400"
+    preserveAspectRatio="none"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path d="M0 320 C120 280, 240 340, 360 300 S600 240, 720 280 S960 340, 1080 290 S1320 240, 1440 270" stroke="#B8860B" strokeWidth="0.8" opacity="0.13" />
+    <path d="M0 340 C160 310, 280 370, 420 330 S640 270, 780 310 S1000 360, 1140 310 S1340 260, 1440 300" stroke="#B8860B" strokeWidth="0.8" opacity="0.10" />
+    <path d="M0 360 C200 340, 320 380, 480 350 S680 300, 840 340 S1040 370, 1200 330 S1380 290, 1440 330" stroke="#B8860B" strokeWidth="0.8" opacity="0.08" />
+    <path d="M0 380 C180 360, 360 400, 540 370 S720 320, 900 360 S1080 390, 1260 350 S1400 310, 1440 355" stroke="#B8860B" strokeWidth="0.6" opacity="0.06" />
+    <path d="M0 395 C240 385, 400 400, 600 390 S800 370, 1000 390 S1200 400, 1440 390" stroke="#B8860B" strokeWidth="0.5" opacity="0.05" />
+  </svg>
+);
+
+/* Shared inline styles */
+const INK = '#0F1729';
+const INK_BTN = '#16213E';
+const GOLD = '#B8860B';
+const PAPER = '#FFFEFB';
+const INK_TEXT = '#1A1F2E';
+
+const inputStyle = {
+  width: '100%',
+  padding: '10px 0',
+  border: 'none',
+  borderBottom: '1.5px solid #D1D5DB',
+  background: 'transparent',
+  fontSize: '14px',
+  color: INK_TEXT,
+  outline: 'none',
+  transition: 'border-color 0.2s',
+  fontFamily: '"Outfit", sans-serif',
+};
+
+const inputFocusColor = GOLD;
+
+const labelStyle = {
+  display: 'block',
+  fontSize: '11px',
+  fontWeight: 600,
+  letterSpacing: '0.06em',
+  textTransform: 'uppercase',
+  color: '#6B7280',
+  marginBottom: '2px',
+  fontFamily: '"Outfit", sans-serif',
+};
+
+/* ------------------------------------------------------------------ */
+/*  Component                                                          */
+/* ------------------------------------------------------------------ */
 const StudentLogin = () => {
   const navigate = useNavigate();
   const { backendUrl, setIsLoggedin, getUserData } = useContext(AppContent);
@@ -156,45 +213,59 @@ const StudentLogin = () => {
     }
   };
 
+  /* helper: make underline inputs glow gold on focus */
+  const bindFocus = {
+    onFocus: (e) => { e.target.style.borderBottomColor = inputFocusColor; },
+    onBlur: (e) => { e.target.style.borderBottomColor = '#D1D5DB'; },
+  };
+
   if (redirecting) return <LoadingScreen message="Welcome! Redirecting..." />;
 
-  // ---------- OTP Verification Screen ----------
+  /* ================================================================ */
+  /*  OTP Verification Screen                                          */
+  /* ================================================================ */
   if (showOtpScreen) {
     return (
-      <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center px-4 py-10">
-        <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-center mb-10 tracking-tight select-none">
-          <span className="text-white" style={{ WebkitTextStroke: '2px white', WebkitTextFillColor: 'transparent' }}>
-            VERIFY
-          </span>{' '}
-          <span className="italic text-white" style={{ WebkitTextStroke: '2px white', WebkitTextFillColor: 'transparent' }}>
-            EMAIL
-          </span>
-        </h1>
+      <div style={{ minHeight: '100vh', background: INK, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+        <ContourLines />
 
-        <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-          {/* OTP Form */}
-          <div className="w-full md:w-1/2 p-8 sm:p-10">
-            <div className="flex items-center gap-2 mb-6 cursor-pointer" onClick={() => navigate('/landing')}>
-              <GraduationCap className="w-6 h-6 text-blue-600" />
-              <span className="font-bold text-blue-600">SSP</span>
-            </div>
+        {/* Headline */}
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px' }}>
+          <div style={{ flex: '1 1 400px', minWidth: 0 }}>
+            <p
+              onClick={() => navigate('/landing')}
+              style={{ fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase', color: GOLD, marginBottom: '24px', cursor: 'pointer', fontFamily: '"Outfit", sans-serif', fontWeight: 600 }}
+            >
+              ← SSP
+            </p>
+            <h1 className="font-serif-display" style={{ fontSize: 'clamp(2.4rem, 5.5vw, 4.5rem)', fontWeight: 400, lineHeight: 1.08, color: PAPER, marginBottom: '16px', maxWidth: '500px' }}>
+              One last<br />step.
+            </h1>
+            <p style={{ fontSize: '15px', color: 'rgba(255,254,251,0.5)', maxWidth: '380px', lineHeight: 1.6, fontFamily: '"Outfit", sans-serif' }}>
+              We've sent a verification code to your email to confirm your identity.
+            </p>
+          </div>
 
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Mail className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
-              </div>
-            </div>
-            <p className="text-gray-500 text-sm mb-8">
-              We've sent a 6-digit verification code to <span className="font-semibold text-gray-700">{email}</span>
+          {/* Card */}
+          <div style={{
+            flex: '0 1 420px',
+            background: PAPER,
+            borderTop: `2.5px solid ${GOLD}`,
+            borderRadius: '3px',
+            padding: '40px 36px 36px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 700, color: INK_TEXT, marginBottom: '4px', fontFamily: '"Outfit", sans-serif' }}>
+              Check your email
+            </h2>
+            <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '28px', fontFamily: '"Outfit", sans-serif' }}>
+              Enter the 6-digit code sent to <span style={{ fontWeight: 600, color: INK_TEXT }}>{email}</span>
             </p>
 
-            <form onSubmit={verifyOtp} className="space-y-6">
+            <form onSubmit={verifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-3">Enter verification code</label>
-                <div className="flex justify-between gap-2" onPaste={handleOtpPaste}>
+                <label style={labelStyle}>Verification code</label>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }} onPaste={handleOtpPaste}>
                   {Array(6).fill(0).map((_, index) => (
                     <input
                       key={index}
@@ -204,7 +275,22 @@ const StudentLogin = () => {
                       ref={(el) => (otpRefs.current[index] = el)}
                       onInput={(e) => handleOtpInput(e, index)}
                       onKeyDown={(e) => handleOtpKeyDown(e, index)}
-                      className="w-12 h-14 text-center text-xl font-bold border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition"
+                      style={{
+                        width: '44px',
+                        height: '52px',
+                        textAlign: 'center',
+                        fontSize: '20px',
+                        fontWeight: 700,
+                        border: `1.5px solid #D1D5DB`,
+                        borderRadius: '3px',
+                        outline: 'none',
+                        transition: 'border-color 0.2s',
+                        fontFamily: '"IBM Plex Mono", monospace',
+                        color: INK_TEXT,
+                        background: 'transparent',
+                      }}
+                      onFocus={(e) => { e.target.style.borderColor = GOLD; }}
+                      onBlur={(e) => { e.target.style.borderColor = '#D1D5DB'; }}
                     />
                   ))}
                 </div>
@@ -213,42 +299,42 @@ const StudentLogin = () => {
               <button
                 type="submit"
                 disabled={otpLoading}
-                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+                style={{
+                  width: '100%',
+                  padding: '13px 0',
+                  background: INK_BTN,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '3px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: otpLoading ? 'not-allowed' : 'pointer',
+                  opacity: otpLoading ? 0.6 : 1,
+                  transition: 'background 0.25s',
+                  fontFamily: '"Outfit", sans-serif',
+                  letterSpacing: '0.02em',
+                }}
+                onMouseEnter={(e) => { if (!otpLoading) e.target.style.background = GOLD; }}
+                onMouseLeave={(e) => { e.target.style.background = INK_BTN; }}
               >
                 {otpLoading ? 'Verifying...' : 'Verify Email'}
               </button>
             </form>
 
-            <div className="flex items-center justify-between mt-6">
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
               <button
                 onClick={resendOtp}
                 disabled={resendLoading}
-                className="text-sm text-blue-600 hover:text-blue-700 font-medium cursor-pointer disabled:opacity-50"
+                style={{ fontSize: '13px', color: GOLD, fontWeight: 500, cursor: resendLoading ? 'not-allowed' : 'pointer', opacity: resendLoading ? 0.5 : 1, background: 'none', border: 'none', fontFamily: '"Outfit", sans-serif' }}
               >
                 {resendLoading ? 'Sending...' : 'Resend Code'}
               </button>
               <button
                 onClick={() => { setShowOtpScreen(false); setState('Login'); }}
-                className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 font-medium cursor-pointer"
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '13px', color: '#6B7280', fontWeight: 500, cursor: 'pointer', background: 'none', border: 'none', fontFamily: '"Outfit", sans-serif' }}
               >
-                <ArrowLeft className="w-4 h-4" /> Back to Login
+                <ArrowLeft style={{ width: '14px', height: '14px' }} /> Back to Login
               </button>
-            </div>
-          </div>
-
-          {/* Decorative Right Panel */}
-          <div className="hidden md:block w-1/2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-pink-400 to-orange-300 opacity-80" />
-            <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-48 h-48 bg-pink-300/30 rounded-full blur-2xl" />
-            <div className="absolute top-10 right-10 w-36 h-36 bg-indigo-400/30 rounded-full blur-2xl" />
-            <div className="relative z-10 flex items-center justify-center h-full">
-              <div className="text-center text-white p-8">
-                <Mail className="w-16 h-16 mx-auto mb-4 drop-shadow-lg" />
-                <h3 className="text-2xl font-bold mb-2">Almost There!</h3>
-                <p className="text-white/80 text-sm">Verify your email to complete registration</p>
-              </div>
             </div>
           </div>
         </div>
@@ -256,45 +342,57 @@ const StudentLogin = () => {
     );
   }
 
-  // ---------- Login / Sign Up Screen ----------
+  /* ================================================================ */
+  /*  Login / Sign Up Screen                                           */
+  /* ================================================================ */
   return (
-    <div className="min-h-screen bg-gray-950 flex flex-col items-center justify-center px-4 py-10">
-      {/* Title */}
-      <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black text-center mb-10 tracking-tight select-none">
-        <span className="text-white" style={{ WebkitTextStroke: '2px white', WebkitTextFillColor: 'transparent' }}>
-          {state === 'Sign Up' ? 'SIGN UP' : 'LOGIN'}
-        </span>{' '}
-        <span className="italic text-white" style={{ WebkitTextStroke: '2px white', WebkitTextFillColor: 'transparent' }}>
-          PAGE
-        </span>
-      </h1>
+    <div style={{ minHeight: '100vh', background: INK, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
+      <ContourLines />
 
-      {/* Card */}
-      <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-        {/* Form Section */}
-        <div className="w-full md:w-1/2 p-8 sm:p-10">
-          <div className="flex items-center gap-2 mb-6 cursor-pointer" onClick={() => navigate('/landing')}>
-            <GraduationCap className="w-6 h-6 text-blue-600" />
-            <span className="font-bold text-blue-600">SSP</span>
-          </div>
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px' }}>
 
-          <h2 className="text-2xl font-bold text-gray-900">
-            {state === 'Sign Up' ? 'Create Account' : 'Hey,'}
-          </h2>
-          <h2 className="text-2xl font-bold text-gray-900 mb-1">
-            {state === 'Sign Up' ? '' : 'Welcome Back!'}
-          </h2>
-          <p className="text-gray-500 text-sm mb-6">
+        {/* Left: Headline */}
+        <div style={{ flex: '1 1 400px', minWidth: 0 }}>
+          <p
+            onClick={() => navigate('/landing')}
+            style={{ fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase', color: GOLD, marginBottom: '24px', cursor: 'pointer', fontFamily: '"Outfit", sans-serif', fontWeight: 600 }}
+          >
+            ← SSP
+          </p>
+          <h1 className="font-serif-display" style={{ fontSize: 'clamp(2.8rem, 6vw, 5rem)', fontWeight: 400, lineHeight: 1.05, color: PAPER, marginBottom: '20px', maxWidth: '520px' }}>
             {state === 'Sign Up'
-              ? 'Register as a student to get started'
-              : 'We are very happy to see you back!'}
+              ? <>Your scholarship,<br />in motion.</>
+              : <>Welcome<br />back.</>
+            }
+          </h1>
+          <p style={{ fontSize: '15px', color: 'rgba(255,254,251,0.45)', maxWidth: '400px', lineHeight: 1.65, fontFamily: '"Outfit", sans-serif' }}>
+            {state === 'Sign Up'
+              ? 'Create your student account to apply for and track your PMSSS scholarship application.'
+              : 'Sign in to continue managing your scholarship journey.'}
+          </p>
+        </div>
+
+        {/* Right: Form Card */}
+        <div style={{
+          flex: '0 1 420px',
+          background: PAPER,
+          borderTop: `2.5px solid ${GOLD}`,
+          borderRadius: '3px',
+          padding: '40px 36px 36px',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+        }}>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, color: INK_TEXT, marginBottom: '2px', fontFamily: '"Outfit", sans-serif' }}>
+            {state === 'Sign Up' ? 'Create Account' : 'Sign In'}
+          </h2>
+          <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '28px', fontFamily: '"Outfit", sans-serif' }}>
+            {state === 'Sign Up' ? 'Register as a student to get started' : 'Enter your credentials to continue'}
           </p>
 
-          <form onSubmit={onSubmitHandler} className="space-y-4">
+          <form onSubmit={onSubmitHandler} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {state === 'Sign Up' && (
               <>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                  <label style={labelStyle}>Full Name</label>
                   <input
                     type="text"
                     value={fullName}
@@ -302,11 +400,12 @@ const StudentLogin = () => {
                     placeholder="John Doe"
                     required
                     autoComplete="name"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    style={inputStyle}
+                    {...bindFocus}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mobile</label>
+                  <label style={labelStyle}>Mobile</label>
                   <input
                     type="tel"
                     value={mobile}
@@ -317,14 +416,15 @@ const StudentLogin = () => {
                     maxLength={10}
                     inputMode="numeric"
                     autoComplete="tel"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    style={inputStyle}
+                    {...bindFocus}
                   />
                 </div>
               </>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label style={labelStyle}>Email</label>
               <input
                 type="email"
                 value={email}
@@ -332,56 +432,59 @@ const StudentLogin = () => {
                 placeholder="student@example.com"
                 required
                 autoComplete="email"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                style={inputStyle}
+                {...bindFocus}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-              <div className="relative">
+              <label style={labelStyle}>Password</label>
+              <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••••••"
+                  placeholder="••••••••"
                   required
                   minLength={6}
                   autoComplete={state === 'Sign Up' ? 'new-password' : 'current-password'}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-10"
+                  style={{ ...inputStyle, paddingRight: '36px' }}
+                  {...bindFocus}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '4px' }}
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? <EyeOff style={{ width: '16px', height: '16px' }} /> : <Eye style={{ width: '16px', height: '16px' }} />}
                 </button>
               </div>
               {state === 'Sign Up' && (
-                <p className="text-xs text-gray-400 mt-1">At least 6 characters, including a letter and a number.</p>
+                <p style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '4px', fontFamily: '"Outfit", sans-serif' }}>At least 6 characters, including a letter and a number.</p>
               )}
             </div>
 
             {state === 'Sign Up' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
-                <div className="relative">
+                <label style={labelStyle}>Confirm Password</label>
+                <div style={{ position: 'relative' }}>
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="••••••••"
                     required
                     minLength={6}
                     autoComplete="new-password"
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-10"
+                    style={{ ...inputStyle, paddingRight: '36px' }}
+                    {...bindFocus}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#9CA3AF', cursor: 'pointer', padding: '4px' }}
                   >
-                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showConfirmPassword ? <EyeOff style={{ width: '16px', height: '16px' }} /> : <Eye style={{ width: '16px', height: '16px' }} />}
                   </button>
                 </div>
               </div>
@@ -390,7 +493,7 @@ const StudentLogin = () => {
             {state === 'Login' && (
               <p
                 onClick={() => navigate('/reset-password')}
-                className="text-sm text-blue-600 hover:text-blue-700 cursor-pointer font-medium"
+                style={{ fontSize: '13px', color: GOLD, cursor: 'pointer', fontWeight: 500, fontFamily: '"Outfit", sans-serif', margin: '-4px 0 0' }}
               >
                 Forgot password?
               </p>
@@ -399,51 +502,52 @@ const StudentLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
+              style={{
+                width: '100%',
+                padding: '13px 0',
+                marginTop: '4px',
+                background: INK_BTN,
+                color: '#fff',
+                border: 'none',
+                borderRadius: '3px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.6 : 1,
+                transition: 'background 0.25s',
+                fontFamily: '"Outfit", sans-serif',
+                letterSpacing: '0.02em',
+              }}
+              onMouseEnter={(e) => { if (!loading) e.target.style.background = GOLD; }}
+              onMouseLeave={(e) => { e.target.style.background = INK_BTN; }}
             >
-              {loading ? 'Please wait...' : state === 'Sign Up' ? 'Create Account' : 'Login'}
+              {loading ? 'Please wait...' : state === 'Sign Up' ? 'Create Account' : 'Sign In'}
             </button>
           </form>
 
-          <p className="text-gray-500 text-center text-sm mt-6">
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', marginTop: '24px', fontFamily: '"Outfit", sans-serif' }}>
             {state === 'Sign Up' ? (
               <>
                 Already have an account?{' '}
                 <span
                   onClick={() => setState('Login')}
-                  className="text-blue-600 font-semibold cursor-pointer hover:underline"
+                  style={{ color: GOLD, fontWeight: 600, cursor: 'pointer' }}
                 >
-                  Login here
+                  Sign in
                 </span>
               </>
             ) : (
               <>
-                Don't have account?{' '}
+                Don't have an account?{' '}
                 <span
                   onClick={() => setState('Sign Up')}
-                  className="text-blue-600 font-semibold cursor-pointer hover:underline"
+                  style={{ color: GOLD, fontWeight: 600, cursor: 'pointer' }}
                 >
-                  Sign Up here!
+                  Sign up
                 </span>
               </>
             )}
           </p>
-        </div>
-
-        {/* Decorative Right Panel */}
-        <div className="hidden md:block w-1/2 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-pink-400 to-orange-300 opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-white/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-48 h-48 bg-pink-300/30 rounded-full blur-2xl" />
-          <div className="absolute top-10 right-10 w-36 h-36 bg-indigo-400/30 rounded-full blur-2xl" />
-          <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="text-center text-white p-8">
-              <GraduationCap className="w-16 h-16 mx-auto mb-4 drop-shadow-lg" />
-              <h3 className="text-2xl font-bold mb-2">Student Portal</h3>
-              <p className="text-white/80 text-sm">Apply and track your PMSSS scholarship application</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

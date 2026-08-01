@@ -9,6 +9,7 @@ export const AppContextProvider = (props) => {
     const backendUrl = import.meta.env.VITE_BACKEND_URL
     const [isLoggedin, setIsLoggedin] = useState(false)
     const [userData, setUserData] = useState(null)
+    const [authChecked, setAuthChecked] = useState(false)
 
     const getAuthState = async () => {
         try {
@@ -19,6 +20,8 @@ export const AppContextProvider = (props) => {
             }
         } catch (error) {
             // Not logged in — silently ignore 401
+        } finally {
+            setAuthChecked(true)
         }
     }
 
@@ -49,6 +52,14 @@ export const AppContextProvider = (props) => {
 
     useEffect(() => {
         getAuthState();
+
+        const handlePageShow = (e) => {
+            if (e.persisted) {
+                getAuthState();
+            }
+        };
+        window.addEventListener('pageshow', handlePageShow);
+        return () => window.removeEventListener('pageshow', handlePageShow);
     }, [])
 
     const value = {
@@ -56,7 +67,8 @@ export const AppContextProvider = (props) => {
         isLoggedin, setIsLoggedin,
         userData, setUserData,
         getUserData,
-        logoutUser     // ⭐ ADD TO CONTEXT
+        logoutUser,
+        authChecked
     }
 
     return (

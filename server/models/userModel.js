@@ -20,7 +20,8 @@ const userSchema = new mongoose.Schema({
   // 📱 For OTP / notifications
   mobile: {
     type: String,
-    required: true
+    required: true,
+    match: [/^[6-9]\d{9}$/, 'Invalid mobile number']
   },
 
   // 🔐 Hashed password (hashing will be done in controller)

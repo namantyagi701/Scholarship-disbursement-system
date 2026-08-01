@@ -9,6 +9,14 @@ export const register = async (req, res) => {
     if (!fullName || !email || !mobile || !password) {
         return res.status(400).json({ success: false, message: 'Missing Details' })
     }
+
+    if (!/^[6-9]\d{9}$/.test(mobile)) {
+        return res.status(400).json({ success: false, message: 'Invalid mobile number. Must be 10 digits starting with 6-9.' })
+    }
+
+    if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password) || password.length < 6) {
+        return res.status(400).json({ success: false, message: 'Password must be at least 6 characters and contain at least one letter and one number.' })
+    }
     try {
         const existingUser = await userModel.findOne({ email })
 

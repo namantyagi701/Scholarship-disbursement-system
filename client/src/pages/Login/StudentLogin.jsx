@@ -15,7 +15,9 @@ const StudentLogin = () => {
   const [email, setEmail] = useState('');
   const [mobile, setMobile] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // OTP verification state
@@ -93,6 +95,23 @@ const StudentLogin = () => {
 
   const onSubmitHandler = async (e) => {
     e.preventDefault();
+
+    // Client-side validations for Sign Up
+    if (state === 'Sign Up') {
+      if (!/^[6-9]\d{9}$/.test(mobile)) {
+        toast.error('Mobile number must be 10 digits starting with 6-9');
+        return;
+      }
+      if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(password)) {
+        toast.error('Password must contain at least one letter and one number');
+        return;
+      }
+      if (password !== confirmPassword) {
+        toast.error('Passwords do not match');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -125,7 +144,7 @@ const StudentLogin = () => {
           setIsLoggedin(true);
           getUserData();
           setRedirecting(true);
-          setTimeout(() => navigate('/home'), 3000);
+          setTimeout(() => navigate('/home'), 800);
         } else {
           toast.error(data.message);
         }
@@ -282,6 +301,7 @@ const StudentLogin = () => {
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="John Doe"
                     required
+                    autoComplete="name"
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   />
                 </div>
@@ -290,9 +310,13 @@ const StudentLogin = () => {
                   <input
                     type="tel"
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value)}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))}
                     placeholder="9876543210"
                     required
+                    pattern="[6-9]\d{9}"
+                    maxLength={10}
+                    inputMode="numeric"
+                    autoComplete="tel"
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   />
                 </div>
@@ -307,6 +331,7 @@ const StudentLogin = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="student@example.com"
                 required
+                autoComplete="email"
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
               />
             </div>
@@ -321,6 +346,7 @@ const StudentLogin = () => {
                   placeholder="••••••••••••"
                   required
                   minLength={6}
+                  autoComplete={state === 'Sign Up' ? 'new-password' : 'current-password'}
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-10"
                 />
                 <button
@@ -331,7 +357,35 @@ const StudentLogin = () => {
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
+              {state === 'Sign Up' && (
+                <p className="text-xs text-gray-400 mt-1">At least 6 characters, including a letter and a number.</p>
+              )}
             </div>
+
+            {state === 'Sign Up' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    required
+                    minLength={6}
+                    autoComplete="new-password"
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            )}
 
             {state === 'Login' && (
               <p

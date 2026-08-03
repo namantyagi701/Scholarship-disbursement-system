@@ -72,6 +72,15 @@ const documentSchema = new mongoose.Schema({
   // 🕒 When verified/rejected
   verifiedAt: {
     type: Date
+  },
+
+  // 🔍 OCR verification data (Aadhaar image uploads only)
+  ocrExtractedText: {
+    type: String
+  },
+
+  ocrNameMatchScore: {
+    type: Number
   }
 
 }, { timestamps: true });

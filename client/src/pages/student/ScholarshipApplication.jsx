@@ -234,7 +234,7 @@ const ScholarshipApplication = () => {
   };
 
   // ----- Step 3: Upload Documents -----
-  const handleDocUpload = async (docType, file) => {
+  const handleDocUpload = async (docType, file, ocrResult = null) => {
     if (!applicationId) {
       toast.error('Please save the application first');
       return;
@@ -245,6 +245,12 @@ const ScholarshipApplication = () => {
       fd.append('file', file);
       fd.append('documentType', docType);
       fd.append('applicationId', applicationId);
+
+      // Attach OCR results for Aadhaar image uploads
+      if (docType === 'aadhaar' && ocrResult) {
+        fd.append('ocrExtractedText', (ocrResult.text || '').substring(0, 500));
+        fd.append('ocrNameMatchScore', String(ocrResult.nameScore ?? 0));
+      }
 
       const { data } = await axios.post(backendUrl + '/api/student/upload-document', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
@@ -383,6 +389,7 @@ const ScholarshipApplication = () => {
               setUploadedDocs={setUploadedDocs}
               setCurrentStep={setCurrentStep}
               allDocsUploaded={allDocsUploaded}
+              formData={formData}
             />
           )}
 

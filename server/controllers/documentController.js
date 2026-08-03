@@ -17,7 +17,10 @@ export const getDocuments = async (req, res) => {
 
 export const uploadDocument = async (req, res) => {
   try {
-    const { documentType, applicationId } = req.body;
+    const { documentType, applicationId, ocrExtractedText } = req.body;
+    const ocrNameMatchScore = req.body.ocrNameMatchScore != null
+      ? Number(req.body.ocrNameMatchScore)
+      : undefined;
 
     if (!req.file) {
       return res.status(400).json({
@@ -69,6 +72,8 @@ export const uploadDocument = async (req, res) => {
       document.cloudinaryUrl = result.secure_url;
       document.verificationStatus = "pending";
       document.rejectionReason = null;
+      document.ocrExtractedText = ocrExtractedText;
+      document.ocrNameMatchScore = ocrNameMatchScore;
 
       await document.save();
     } else {
@@ -77,7 +82,9 @@ export const uploadDocument = async (req, res) => {
         application: applicationId,
         documentType,
         cloudinaryPublicId: result.public_id,
-        cloudinaryUrl: result.secure_url
+        cloudinaryUrl: result.secure_url,
+        ocrExtractedText,
+        ocrNameMatchScore
       });
     }
 

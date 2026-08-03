@@ -255,6 +255,23 @@ const SagApplicationDetail = () => {
                     {doc.verificationStatus === 'rejected' && doc.rejectionReason && (
                       <p className="text-xs text-red-500 mt-1">Reason: {doc.rejectionReason}</p>
                     )}
+                    {/* OCR match indicator — Aadhaar only, name match signal for SAG */}
+                    {doc.documentType === 'aadhaar' && doc.ocrNameMatchScore != null && (
+                      <div className="mt-1.5">
+                        {doc.ocrNameMatchScore >= 0.8 ? (
+                          <p className="text-xs text-green-600 font-medium">✓ OCR: name matches application</p>
+                        ) : (
+                          <>
+                            <p className="text-xs text-amber-600 font-medium">⚠ OCR: extracted name may not match — verify manually</p>
+                            {doc.ocrExtractedText && (
+                              <p className="text-xs text-gray-400 mt-0.5 truncate" title={doc.ocrExtractedText}>
+                                OCR text: {doc.ocrExtractedText.substring(0, 120)}…
+                              </p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <a
                     href={doc.cloudinaryUrl}

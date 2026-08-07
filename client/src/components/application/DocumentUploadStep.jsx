@@ -89,7 +89,8 @@ const DocumentUploadStep = ({
   setUploadedDocs,
   setCurrentStep,
   allDocsUploaded,
-  formData
+  formData,
+  handleSaveApplication
 }) => {
   const [ocrStatus, setOcrStatus] = useState({});   // doc.type → 'scanning' | 'done'
   const [ocrResults, setOcrResults] = useState({});  // doc.type → { text, nameScore, dobFound }
@@ -146,11 +147,10 @@ const DocumentUploadStep = ({
           return (
             <div
               key={doc.type}
-              className={`border-2 rounded-xl p-4 transition ${
-                isUploaded
+              className={`border-2 rounded-xl p-4 transition ${isUploaded
                   ? 'border-green-300 bg-green-50'
                   : 'border-gray-200 bg-white hover:border-blue-300'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="font-medium text-gray-800 text-sm">{doc.label}</span>
@@ -250,13 +250,21 @@ const DocumentUploadStep = ({
         >
           <ChevronLeft className="w-5 h-5" /> Back
         </button>
-        <button
-          onClick={() => setCurrentStep(3)}
-          disabled={!allDocsUploaded}
-          className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-        >
-          Review & Submit <ChevronRight className="w-5 h-5" />
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={handleSaveApplication}
+            className="px-6 py-3 border border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition flex items-center gap-2"
+          >
+            Save Progress
+          </button>
+          <button
+            onClick={() => setCurrentStep(3)}
+            disabled={!allDocsUploaded}
+            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          >
+            Review & Submit <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
     </div>
   );

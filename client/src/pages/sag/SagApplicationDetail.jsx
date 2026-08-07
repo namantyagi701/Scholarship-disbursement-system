@@ -244,11 +244,10 @@ const SagApplicationDetail = () => {
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5">
                       Status:{" "}
-                      <span className={`font-medium ${
-                        doc.verificationStatus === 'approved' ? 'text-green-600' :
-                        doc.verificationStatus === 'rejected' ? 'text-red-600' :
-                        'text-yellow-600'
-                      }`}>
+                      <span className={`font-medium ${doc.verificationStatus === 'approved' ? 'text-green-600' :
+                          doc.verificationStatus === 'rejected' ? 'text-red-600' :
+                            'text-yellow-600'
+                        }`}>
                         {doc.verificationStatus}
                       </span>
                     </p>
@@ -283,7 +282,7 @@ const SagApplicationDetail = () => {
                     <ExternalLink className="w-4 h-4" />
                   </a>
                 </div>
-                
+
                 {isActionable && (
                   <div className="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                     <button

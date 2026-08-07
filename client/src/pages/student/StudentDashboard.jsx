@@ -151,7 +151,7 @@ const StudentDashboard = () => {
               </h1>
               {hasApplication ? (
                 <p className="font-mono-data text-xs text-[#6B6558] mt-2">
-                  Ref. {referenceNo} {filedOn && <>&nbsp;&middot;&nbsp; Filed {filedOn}</>}
+                  Ref. {referenceNo} {application?.academicYear && <>&middot; {application.academicYear} </>}{filedOn && <>&middot; Filed {filedOn}</>}
                 </p>
               ) : (
                 <p className="text-sm text-[#6B6558] mt-2">

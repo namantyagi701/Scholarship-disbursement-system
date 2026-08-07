@@ -9,6 +9,11 @@ const applicationSchema = new mongoose.Schema({
     required: true
   },
 
+  academicYear: {
+    type: String,
+    required: true
+  },
+
   formData: {
     type: Map,
     of: mongoose.Schema.Types.Mixed
@@ -78,6 +83,8 @@ const applicationSchema = new mongoose.Schema({
   }
 
 }, { timestamps: true });
+
+applicationSchema.index({ student: 1, academicYear: 1 }, { unique: true });
 
 const applicationModel =
   mongoose.models.Application ||

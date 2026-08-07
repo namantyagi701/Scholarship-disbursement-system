@@ -120,25 +120,45 @@ const ScholarshipApplication = () => {
               if (app.bankAccountNumber) setBankAccountNumber(app.bankAccountNumber);
               if (app.ifscCode) setIfscCode(app.ifscCode);
               if (app.accountHolderName) setAccountHolderName(app.accountHolderName);
-              
+
               // Prefill documents
+              let fetchedDocsLocal = {};
               try {
                 const docsRes = await axios.get(backendUrl + '/api/student/documents');
                 if (docsRes.data.success && docsRes.data.documents) {
-                  const fetchedDocs = {};
-                  docsRes.data.documents.forEach(d => {
-                    // Only prefill if the document itself wasn't rejected, or prefill anyway so they can delete and reupload
-                    fetchedDocs[d.documentType] = { url: d.cloudinaryUrl, name: `${d.documentType.replace(/_/g, " ")} document` };
+                  docsRes.data.documents
+                    .filter(d => d.application === app._id)
+                    .forEach(d => {
+                      fetchedDocsLocal[d.documentType] = { url: d.cloudinaryUrl, name: `${d.documentType.replace(/_/g, " ")} document` };
                   });
-                  setUploadedDocs(fetchedDocs);
+                  setUploadedDocs(fetchedDocsLocal);
                 }
               } catch (e) {
                 console.error("Could not fetch documents", e);
               }
 
+              // Pre-fill toast
+              const isAutoCreated = app.status === 'draft' && 
+                                    app.createdAt && 
+                                    (new Date() - new Date(app.createdAt)) < 120000 &&
+                                    app.formData && Object.keys(app.formData).length > 0;
+              if (isAutoCreated) {
+                  toast.info("We've pre-filled some details from your previous scholarship application — please review and update anything that's changed.");
+              }
+
               // Jump to appropriate step
               if (userData?.aadhaarVerified) {
-                setCurrentStep(1);
+                const hasForm = app.formData && ['name', 'email', 'fatherName', 'dateOfBirth', 'contactNumber', 'address', 'courseName', 'instituteName', 'annualFamilyIncome', 'bankName'].every(k => app.formData[k]);
+                const hasBank = app.bankAccountNumber && app.ifscCode && app.accountHolderName;
+                const hasAllDocs = REQUIRED_DOCUMENTS.every(d => fetchedDocsLocal[d.type]);
+
+                if (hasAllDocs) {
+                  setCurrentStep(3);
+                } else if (hasForm && hasBank) {
+                  setCurrentStep(2);
+                } else {
+                  setCurrentStep(1);
+                }
               }
             }
           } else {
@@ -195,21 +215,23 @@ const ScholarshipApplication = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveApplication = async () => {
-    const required = [
-      'name', 'email', 'fatherName', 'dateOfBirth', 'contactNumber',
-      'address', 'courseName', 'instituteName', 'annualFamilyIncome',
-      'bankName',
-    ];
-    for (const field of required) {
-      if (!formData[field]) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        return;
+  const handleSaveApplication = async (isDraftSave = false) => {
+    if (!isDraftSave) {
+      const required = [
+        'name', 'email', 'fatherName', 'dateOfBirth', 'contactNumber',
+        'address', 'courseName', 'instituteName', 'annualFamilyIncome',
+        'bankName',
+      ];
+      for (const field of required) {
+        if (!formData[field]) {
+          toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+          return;
+        }
       }
+      if (!bankAccountNumber) { toast.error('Please fill in bank account number'); return; }
+      if (!ifscCode) { toast.error('Please fill in IFSC code'); return; }
+      if (!accountHolderName) { toast.error('Please fill in account holder name'); return; }
     }
-    if (!bankAccountNumber) { toast.error('Please fill in bank account number'); return; }
-    if (!ifscCode) { toast.error('Please fill in IFSC code'); return; }
-    if (!accountHolderName) { toast.error('Please fill in account holder name'); return; }
 
     setLoading(true);
     try {
@@ -220,9 +242,13 @@ const ScholarshipApplication = () => {
         accountHolderName,
       });
       if (data.success) {
-        toast.success(data.message);
-        setApplicationId(data.applicationId);
-        setCurrentStep(2);
+        if (isDraftSave) {
+          toast.success("Progress saved");
+        } else {
+          toast.success(data.message);
+          setApplicationId(data.applicationId);
+          setCurrentStep(2);
+        }
       } else {
         toast.error(data.message);
       }
@@ -321,29 +347,26 @@ const ScholarshipApplication = () => {
               <React.Fragment key={step.label}>
                 <div className="flex flex-col items-center relative">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
-                      isCompleted
+                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
                         ? 'bg-green-500 border-green-500 text-white'
                         : isCurrent
-                        ? 'bg-blue-600 border-blue-600 text-white'
-                        : 'bg-white border-gray-300 text-gray-400'
-                    }`}
+                          ? 'bg-blue-600 border-blue-600 text-white'
+                          : 'bg-white border-gray-300 text-gray-400'
+                      }`}
                   >
                     {isCompleted ? <CheckCircle className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
                   </div>
                   <span
-                    className={`text-xs mt-2 text-center font-medium hidden sm:block ${
-                      isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-400'
-                    }`}
+                    className={`text-xs mt-2 text-center font-medium hidden sm:block ${isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-400'
+                      }`}
                   >
                     {step.label}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
                   <div
-                    className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${
-                      index < currentStep ? 'bg-green-500' : 'bg-gray-300'
-                    }`}
+                    className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${index < currentStep ? 'bg-green-500' : 'bg-gray-300'
+                      }`}
                   />
                 )}
               </React.Fragment>
@@ -375,7 +398,8 @@ const ScholarshipApplication = () => {
               setIfscCode={setIfscCode}
               accountHolderName={accountHolderName}
               setAccountHolderName={setAccountHolderName}
-              handleSaveApplication={handleSaveApplication}
+              handleSaveApplication={() => handleSaveApplication(false)}
+              onSaveProgress={() => handleSaveApplication(true)}
               loading={loading}
             />
           )}
@@ -390,6 +414,7 @@ const ScholarshipApplication = () => {
               setCurrentStep={setCurrentStep}
               allDocsUploaded={allDocsUploaded}
               formData={formData}
+              handleSaveApplication={() => handleSaveApplication(true)}
             />
           )}
 

@@ -11,8 +11,10 @@ const ApplicationFormStep = ({
   ifscCode,
   setIfscCode,
   accountHolderName,
+  accountHolderName,
   setAccountHolderName,
   handleSaveApplication,
+  onSaveProgress,
   loading
 }) => {
   return (
@@ -124,7 +126,14 @@ const ApplicationFormStep = ({
         </div>
       </div>
 
-      <div className="flex justify-end mt-8">
+      <div className="flex justify-end gap-3 mt-8">
+        <button
+          onClick={onSaveProgress}
+          disabled={loading}
+          className="px-6 py-3 border border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition disabled:opacity-50"
+        >
+          {loading ? 'Saving...' : 'Save Progress'}
+        </button>
         <button
           onClick={handleSaveApplication}
           disabled={loading}

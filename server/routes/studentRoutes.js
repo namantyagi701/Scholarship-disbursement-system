@@ -10,6 +10,7 @@ import {
   submitApplication,
   getApplicationStatus,
   getPaymentDetails,
+  getApplicationHistory,
 } from "../controllers/studentController.js";
 
 
@@ -34,6 +35,8 @@ studentRouter.post("/submit-application", submitApplication);
 studentRouter.get("/application-status", getApplicationStatus);
 
 studentRouter.get("/payment-details", getPaymentDetails);
+
+studentRouter.get("/application-history", getApplicationHistory);
 
 studentRouter.get("/documents", getDocuments);
 

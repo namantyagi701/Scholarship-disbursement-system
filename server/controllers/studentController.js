@@ -140,101 +140,98 @@ export const verifyAadhaar = async (req, res) => {
     }
 };
 
+const findOrCreateCurrentApplication = async (studentId) => {
+    let application = await applicationModel.findOne({
+        student: studentId,
+        academicYear: getCurrentAcademicYear()
+    });
 
+    if (application) {
+        return application;
+    }
+
+    try {
+        const pastApproved = await applicationModel.findOne({
+            student: studentId,
+            status: { $in: ["verified", "disbursed"] }
+        }).sort({ createdAt: -1 });
+
+        let pastFormData = {};
+        let initialBankAcc = undefined;
+        let initialIfsc = undefined;
+        let initialAccName = undefined;
+
+        if (pastApproved) {
+            pastFormData = Object.fromEntries(
+                pastApproved.formData instanceof Map ? pastApproved.formData : Object.entries(pastApproved.formData || {})
+            );
+            initialBankAcc = pastApproved.bankAccountNumber;
+            initialIfsc = pastApproved.ifscCode;
+            initialAccName = pastApproved.accountHolderName;
+        }
+
+        application = await applicationModel.create({
+            student: studentId,
+            academicYear: getCurrentAcademicYear(),
+            status: "draft",
+            formData: pastFormData,
+            bankAccountNumber: initialBankAcc,
+            ifscCode: initialIfsc,
+            accountHolderName: initialAccName
+        });
+        
+        application._isNewlyAutoCreated = true;
+        return application;
+    } catch (error) {
+        if (error.code === 11000) {
+            return await applicationModel.findOne({
+                student: studentId,
+                academicYear: getCurrentAcademicYear()
+            });
+        }
+        throw error;
+    }
+};
 
 export const saveApplication = async (req, res) => {
     try {
         const { formData, bankAccountNumber, ifscCode, accountHolderName } = req.body;
 
-        if (!formData || typeof formData !== "object") {
+        if (formData && typeof formData !== "object") {
             return res.status(400).json({
                 success: false,
-                message: "formData is required and must be an object"
+                message: "formData must be an object"
             });
         }
 
-        let application = await applicationModel.findOne({
-            student: req.user._id,
-            academicYear: getCurrentAcademicYear()
-        });
+        let application = await findOrCreateCurrentApplication(req.user._id);
 
-        if (application) {
-            if (!["draft", "rejected"].includes(application.status)) {
-                return res.status(400).json({
-                    success: false,
-                    message: "Cannot update after submission"
-                });
-            }
+        if (!["draft", "rejected"].includes(application.status)) {
+            return res.status(400).json({
+                success: false,
+                message: "Cannot update after submission"
+            });
+        }
 
-            // Merge new fields into existing formData map
+        if (formData) {
             for (const [key, value] of Object.entries(formData)) {
                 application.formData.set(key, value);
             }
-
-            // Update bank details (amount is set by SAG only)
-            if (bankAccountNumber !== undefined) application.bankAccountNumber = bankAccountNumber;
-            if (ifscCode !== undefined) application.ifscCode = ifscCode;
-            if (accountHolderName !== undefined) application.accountHolderName = accountHolderName;
-
-            await application.save();
-
-            return res.json({
-                success: true,
-                message: "Application updated successfully",
-                applicationId: application._id,
-                application
-            });
         }
 
-        try {
-            const pastApproved = await applicationModel.findOne({
-                student: req.user._id,
-                status: { $in: ["verified", "disbursed"] }
-            }).sort({ createdAt: -1 });
+        if (bankAccountNumber !== undefined) application.bankAccountNumber = bankAccountNumber;
+        if (ifscCode !== undefined) application.ifscCode = ifscCode;
+        if (accountHolderName !== undefined) application.accountHolderName = accountHolderName;
 
-            let prefilled = false;
-            let initialFormData = formData;
-            let initialBankAcc = bankAccountNumber;
-            let initialIfsc = ifscCode;
-            let initialAccName = accountHolderName;
+        await application.save();
 
-            if (pastApproved && (!formData || Object.keys(formData).length === 0)) {
-                const pastFormData = Object.fromEntries(
-                    pastApproved.formData instanceof Map ? pastApproved.formData : Object.entries(pastApproved.formData || {})
-                );
-                initialFormData = pastFormData;
-                initialBankAcc = pastApproved.bankAccountNumber;
-                initialIfsc = pastApproved.ifscCode;
-                initialAccName = pastApproved.accountHolderName;
-                prefilled = true;
-            }
-
-            application = await applicationModel.create({
-                student: req.user._id,
-                academicYear: getCurrentAcademicYear(),
-                status: "draft",
-                formData: initialFormData,
-                bankAccountNumber: initialBankAcc,
-                ifscCode: initialIfsc,
-                accountHolderName: initialAccName
-            });
-
-            return res.status(201).json({
-                success: true,
-                message: "Application created successfully",
-                applicationId: application._id,
-                application,
-                prefilled
-            });
-        } catch (dbError) {
-            if (dbError.code === 11000) {
-                return res.status(409).json({
-                    success: false,
-                    message: "You already have an application for this academic year."
-                });
-            }
-            throw dbError;
-        }
+        return res.json({
+            success: true,
+            message: "Application updated successfully",
+            applicationId: application._id,
+            application,
+            prefilled: application._isNewlyAutoCreated
+        });
 
     } catch (error) {
         return res.status(500).json({
@@ -319,40 +316,12 @@ export const submitApplication = async (req, res) => {
 
 export const getApplicationStatus = async (req, res) => {
     try {
+        await findOrCreateCurrentApplication(req.user._id);
 
-        let application = await applicationModel
+        const application = await applicationModel
             .findOne({ student: req.user._id, academicYear: getCurrentAcademicYear() })
             .populate("sagVerifiedBy", "fullName email")
             .populate("disbursedBy", "fullName email");
-
-        if (!application) {
-            // Auto-create draft from past application if it exists
-            const pastApproved = await applicationModel.findOne({
-                student: req.user._id,
-                status: { $in: ["verified", "disbursed"] }
-            }).sort({ createdAt: -1 });
-
-            if (pastApproved) {
-                const pastFormData = Object.fromEntries(
-                    pastApproved.formData instanceof Map ? pastApproved.formData : Object.entries(pastApproved.formData || {})
-                );
-
-                application = await applicationModel.create({
-                    student: req.user._id,
-                    academicYear: getCurrentAcademicYear(),
-                    status: "draft",
-                    formData: pastFormData,
-                    bankAccountNumber: pastApproved.bankAccountNumber,
-                    ifscCode: pastApproved.ifscCode,
-                    accountHolderName: pastApproved.accountHolderName
-                });
-            } else {
-                return res.status(404).json({
-                    success: false,
-                    message: "Application not found"
-                });
-            }
-        }
 
         return res.json({
             success: true,

@@ -11,7 +11,6 @@ const ApplicationFormStep = ({
   ifscCode,
   setIfscCode,
   accountHolderName,
-  accountHolderName,
   setAccountHolderName,
   handleSaveApplication,
   onSaveProgress,

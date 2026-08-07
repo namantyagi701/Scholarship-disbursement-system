@@ -58,6 +58,7 @@ const Sidebar = ({ isOpen, onClose }) => {
     finance: [
       { label: 'Home', icon: Home, path: '/home' },
       { label: 'Approved Applications', icon: CheckCircle, path: '/finance/approved' },
+      { label: 'Payment Batches', icon: ClipboardList, path: '/finance/batches' },
       { label: 'Payment History', icon: CreditCard, path: '/finance/payment-history' },
     ],
     admin: [

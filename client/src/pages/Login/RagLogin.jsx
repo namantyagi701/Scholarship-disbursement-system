@@ -5,12 +5,13 @@ import { AppContent } from '../../context/AppContext';
 import { toast } from 'react-toastify';
 import { Eye, EyeOff } from 'lucide-react';
 import LoadingScreen from '../../components/LoadingScreen';
+import { motion } from 'framer-motion';
 
 /* ------------------------------------------------------------------ */
 /*  Shared SVG line-art motif — abstract topographic contour lines     */
 /* ------------------------------------------------------------------ */
 const ContourLines = () => (
-  <svg
+  <motion.svg
     className="absolute bottom-0 left-0 w-full"
     style={{ height: '38%' }}
     viewBox="0 0 1440 400"
@@ -18,13 +19,16 @@ const ContourLines = () => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     aria-hidden="true"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 1.5, ease: 'easeOut' }}
   >
     <path d="M0 320 C120 280, 240 340, 360 300 S600 240, 720 280 S960 340, 1080 290 S1320 240, 1440 270" stroke="#B8860B" strokeWidth="0.8" opacity="0.13" />
     <path d="M0 340 C160 310, 280 370, 420 330 S640 270, 780 310 S1000 360, 1140 310 S1340 260, 1440 300" stroke="#B8860B" strokeWidth="0.8" opacity="0.10" />
     <path d="M0 360 C200 340, 320 380, 480 350 S680 300, 840 340 S1040 370, 1200 330 S1380 290, 1440 330" stroke="#B8860B" strokeWidth="0.8" opacity="0.08" />
     <path d="M0 380 C180 360, 360 400, 540 370 S720 320, 900 360 S1080 390, 1260 350 S1400 310, 1440 355" stroke="#B8860B" strokeWidth="0.6" opacity="0.06" />
     <path d="M0 395 C240 385, 400 400, 600 390 S800 370, 1000 390 S1200 400, 1440 390" stroke="#B8860B" strokeWidth="0.5" opacity="0.05" />
-  </svg>
+  </motion.svg>
 );
 
 /* Shared inline styles */
@@ -116,7 +120,12 @@ const RagLogin = () => {
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px' }}>
 
         {/* Left: Headline */}
-        <div style={{ flex: '1 1 400px', minWidth: 0 }}>
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+          style={{ flex: '1 1 400px', minWidth: 0 }}
+        >
           <p
             onClick={() => navigate('/landing')}
             style={{ fontSize: '13px', letterSpacing: '0.12em', textTransform: 'uppercase', color: GOLD, marginBottom: '24px', cursor: 'pointer', fontFamily: '"Outfit", sans-serif', fontWeight: 600 }}
@@ -129,10 +138,14 @@ const RagLogin = () => {
           <p style={{ fontSize: '15px', color: 'rgba(255,254,251,0.45)', maxWidth: '400px', lineHeight: 1.65, fontFamily: '"Outfit", sans-serif' }}>
             Access the SAG verification portal to review applications and manage scholarship approvals.
           </p>
-        </div>
+        </motion.div>
 
         {/* Right: Form Card */}
-        <div style={{
+        <motion.div 
+          initial={{ opacity: 0, x: 30 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+          style={{
           flex: '0 1 420px',
           background: PAPER,
           borderTop: `2.5px solid ${GOLD}`,
@@ -222,7 +235,7 @@ const RagLogin = () => {
           <p style={{ textAlign: 'center', fontSize: '11px', color: '#9CA3AF', marginTop: '24px', fontFamily: '"Outfit", sans-serif' }}>
             SAG accounts are provisioned by the administrator.
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

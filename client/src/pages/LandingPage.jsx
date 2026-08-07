@@ -6,6 +6,7 @@ import HowItWorks from '../components/Landing/HowItWorks';
 import RoleCards from '../components/Landing/RoleCard';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
+import CustomCursor from '../components/ui/CustomCursor';
 
 const LandingPage = () => {
   const scrollToRoles = () => {
@@ -17,6 +18,7 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF8F3]">
+      <CustomCursor />
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

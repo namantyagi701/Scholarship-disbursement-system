@@ -24,6 +24,8 @@ import SagApplicationDetail from './pages/sag/SagApplicationDetail'
 // Finance pages
 import FinanceApproved from './pages/finance/FinanceApproved'
 import FinancePaymentHistory from './pages/finance/FinancePaymentHistory'
+import FinancePaymentBatches from './pages/finance/FinancePaymentBatches'
+import FinanceBatchDetail from './pages/finance/FinanceBatchDetail'
 
 // Admin pages
 import AdminCreateUser from './pages/admin/AdminCreateUser'
@@ -63,6 +65,8 @@ const App = () => {
           {/* Finance routes — finance role only */}
           <Route element={<ProtectedRoute allowedRoles={['finance']} />}>
             <Route path='/finance/approved' element={<FinanceApproved/>} />
+            <Route path='/finance/batches' element={<FinancePaymentBatches/>} />
+            <Route path='/finance/batch/:batchId' element={<FinanceBatchDetail/>} />
             <Route path='/finance/payment-history' element={<FinancePaymentHistory/>} />
           </Route>
 

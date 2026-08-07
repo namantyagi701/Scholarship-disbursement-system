@@ -80,6 +80,25 @@ const applicationSchema = new mongoose.Schema({
 
   disbursedAt: {
     type: Date
+  },
+
+  // 📦 Batch payment lifecycle fields
+  financeStatus: {
+    type: String,
+    enum: ["Pending", "Paid", "Failed"],
+    default: "Pending"
+  },
+
+  paymentDate: {
+    type: Date
+  },
+
+  utrNumber: {
+    type: String
+  },
+
+  batchId: {
+    type: String
   }
 
 }, { timestamps: true });

@@ -115,13 +115,18 @@ export const generatePaymentBatch = async (req, res) => {
         }
 
         const applications = await applicationModel
-            .find({ _id: { $in: applicationIds }, status: "verified", financeStatus: { $in: ["Pending", null, undefined] } })
+            .find({ _id: { $in: applicationIds }, status: "verified", batchId: null })
             .populate("student", "fullName email");
+
+        const skippedCount = applicationIds.length - applications.length;
 
         if (applications.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "No eligible applications found. Only verified, unpaid applications can be batched."
+                message: skippedCount > 0
+                    ? `All ${skippedCount} selected application(s) are already in another batch.`
+                    : "No eligible applications found. Only verified, unbatched applications can be batched.",
+                skippedCount
             });
         }
 
@@ -168,7 +173,8 @@ export const generatePaymentBatch = async (req, res) => {
             message: "Payment batch generated successfully",
             batch,
             csvContent,
-            fileName: `payment_batch_${batchId}.csv`
+            fileName: `payment_batch_${batchId}.csv`,
+            skippedCount
         });
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message });

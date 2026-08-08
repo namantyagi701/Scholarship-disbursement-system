@@ -120,7 +120,7 @@ const FinanceApproved = () => {
   };
 
   // ─── Selection helpers ──────────────────────────────────────────────
-  const verifiedOnPage = paginated.filter((a) => a.status === "verified" && a.financeStatus !== "Paid");
+  const verifiedOnPage = paginated.filter((a) => a.status === "verified" && !a.batchId);
   const allVerifiedOnPageSelected = verifiedOnPage.length > 0 && verifiedOnPage.every((a) => selected.has(a._id));
 
   const toggleSelect = (id) => {
@@ -186,6 +186,9 @@ const FinanceApproved = () => {
       });
       if (data.success) {
         setGeneratedBatch(data.batch);
+        if (data.skippedCount > 0) {
+          toast.warn(`${data.skippedCount} application(s) were already in another batch and were skipped.`);
+        }
         toast.success(`Batch ${data.batch.batchId} generated`);
 
         // Trigger CSV download
@@ -442,7 +445,7 @@ const FinanceApproved = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {paginated.map((app) => {
-                  const isSelectable = app.status === "verified" && app.financeStatus !== "Paid";
+                  const isSelectable = app.status === "verified" && !app.batchId;
                   return (
                     <tr key={app._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-4">
@@ -476,7 +479,7 @@ const FinanceApproved = () => {
                         {statusBadge(app.financeStatus || (app.status === "disbursed" ? "Paid" : "Pending"))}
                       </td>
                       <td className="px-4 py-4 text-right">
-                        {app.status === "verified" && app.financeStatus !== "Paid" ? (
+                        {app.status === "verified" && !app.batchId ? (
                           <button
                             onClick={() => setDisburseModal(app)}
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors"

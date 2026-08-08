@@ -84,7 +84,6 @@ export const verifyApplication = async (req, res) => {
         // Notify student
         if (application.student?.email) {
             await transporter.sendMail({
-                from: process.env.SMTP_EMAIL,
                 to: application.student.email,
                 subject: "Application Verified — PMSSS",
                 text: `Dear ${application.student.fullName},\n\nYour scholarship application has been verified by SAG and forwarded for disbursement.\n\nRegards,\nSSP Team`
@@ -126,7 +125,6 @@ export const rejectApplication = async (req, res) => {
         // Notify student
         if (application.student?.email) {
             await transporter.sendMail({
-                from: process.env.SMTP_EMAIL,
                 to: application.student.email,
                 subject: "Application Rejected — PMSSS",
                 text: `Dear ${application.student.fullName},\n\nYour scholarship application has been rejected.\nReason: ${application.rejectionReason}\n\nPlease contact support for further details.\n\nRegards,\nSSP Team`

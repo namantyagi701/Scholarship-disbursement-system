@@ -50,7 +50,6 @@ export const disbursePayment = async (req, res) => {
         // Notify student
         if (application.student?.email) {
             await transporter.sendMail({
-                from: process.env.SMTP_EMAIL,
                 to: application.student.email,
                 subject: "Scholarship Disbursed — PMSSS",
                 text: `Dear ${application.student.fullName},\n\nYour scholarship has been successfully disbursed.\nTransaction ID: ${transactionId}\n\nRegards,\nSSP Team`

@@ -28,7 +28,6 @@ export const createUser = async (req, res) => {
 
         // Notify the new user via email
         const mailOptions = {
-            from: process.env.SMTP_EMAIL,
             to: email,
             subject: `Account Created — ${role.toUpperCase()} Role`,
             text: `Hello ${fullName},\n\nYour account has been created by an administrator.\n\nEmail: ${email}\nRole: ${role}\n\nPlease log in and change your password.`

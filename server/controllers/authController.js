@@ -41,7 +41,6 @@ export const register = async (req, res) => {
 
         //sending welcome email using brevo 
         const mailOptions = {
-            from: process.env.SMTP_EMAIL,
             to: email,
             subject: 'Welcome to our Website',
             text: `Your account has been created with Email-Id : ${email}`
@@ -121,7 +120,6 @@ export const sendVerifyOtp = async (req, res) => {
         await user.save();
 
         const mailOption = {
-            from: process.env.SMTP_EMAIL,
             to: user.email,
             subject: 'Account Verification OTP',
             text: `Your otp is ${otp}`
@@ -157,7 +155,6 @@ export const verifyEmail = async (req, res) => {
         await user.save();
 
         const mailOption = {
-            from: process.env.SMTP_EMAIL,
             to: user.email,
             subject: 'Account Verification',
             text: 'Account verified successfully'
@@ -213,7 +210,6 @@ export const sendResetOtp = async (req, res) => {
         await user.save();
 
         const mailOption = {
-            from: process.env.SMTP_EMAIL,
             to: user.email,
             subject: 'Reset Account',
             text: `Reset Account Otp : ${otp}`

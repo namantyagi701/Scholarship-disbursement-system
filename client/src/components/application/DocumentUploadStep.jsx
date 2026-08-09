@@ -130,11 +130,11 @@ const DocumentUploadStep = ({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center gap-2">
-        <Upload className="w-6 h-6 text-blue-600" />
+      <h2 className="font-serif-display text-2xl sm:text-3xl font-normal text-[#16213E] mb-2 flex items-center gap-3">
+        <Upload className="w-6 h-6 text-[#16213E]" strokeWidth={1.5} />
         Upload Required Documents
       </h2>
-      <p className="text-gray-500 mb-6">All 6 documents are required before submission</p>
+      <p className="text-[#6B6558] mb-8">Upload the required documents before submission</p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {REQUIRED_DOCUMENTS.map((doc) => {
@@ -147,19 +147,26 @@ const DocumentUploadStep = ({
           return (
             <div
               key={doc.type}
-              className={`border-2 rounded-xl p-4 transition ${isUploaded
-                  ? 'border-green-300 bg-green-50'
-                  : 'border-gray-200 bg-white hover:border-blue-300'
+              className={`border rounded-sm p-4 transition ${isUploaded
+                  ? 'border-[#2F6F4F] bg-[#FAF8F3]'
+                  : 'border-[#DCD6C8] bg-transparent hover:border-[#B8860B]'
                 }`}
             >
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-gray-800 text-sm">{doc.label}</span>
-                {isUploaded && <CheckCircle className="w-5 h-5 text-green-500" />}
+                <span className="font-medium text-[#16213E] text-sm">
+                  {doc.label}{' '}
+                  {doc.optional && (
+                    <span className="text-[#B7B0A0] font-normal text-xs">
+                      ({doc.type === 'caste_certificate' ? 'Not required for general category' : ''})
+                    </span>
+                  )}
+                </span>
+                {isUploaded && <CheckCircle className="w-5 h-5 text-[#2F6F4F]" />}
               </div>
 
               {isUploaded ? (
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-green-600 truncate flex-1">
+                  <span className="text-xs text-[#2F6F4F] truncate flex-1 font-mono-data tracking-wide">
                     {uploadedDocs[doc.type].name}
                   </span>
                   <div className="flex items-center gap-2 ml-2">
@@ -167,7 +174,7 @@ const DocumentUploadStep = ({
                       href={uploadedDocs[doc.type].url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-blue-600 hover:text-blue-700"
+                      className="text-[#16213E] hover:text-[#B8860B] transition-colors"
                     >
                       <Eye className="w-4 h-4" />
                     </a>
@@ -179,7 +186,7 @@ const DocumentUploadStep = ({
                           return copy;
                         })
                       }
-                      className="text-red-400 hover:text-red-600"
+                      className="text-[#8B2E2E] hover:text-[#5C3A3A] transition-colors"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -187,18 +194,18 @@ const DocumentUploadStep = ({
                 </div>
               ) : (
                 <label className="cursor-pointer">
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg py-4 text-center hover:border-blue-400 transition">
+                  <div className="border border-dashed border-[#DCD6C8] rounded-sm py-4 text-center hover:border-[#B8860B] transition">
                     {isScanning ? (
                       <div className="flex items-center justify-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
-                        <span className="text-xs text-amber-600 font-medium">Scanning document…</span>
+                        <Loader2 className="w-5 h-5 animate-spin text-[#B8860B]" />
+                        <span className="text-xs text-[#16213E] font-medium">Scanning document…</span>
                       </div>
                     ) : isUploading ? (
-                      <Loader2 className="w-5 h-5 animate-spin text-blue-500 mx-auto" />
+                      <Loader2 className="w-5 h-5 animate-spin text-[#16213E] mx-auto" />
                     ) : (
                       <>
-                        <Upload className="w-5 h-5 text-gray-400 mx-auto mb-1" />
-                        <span className="text-xs text-gray-500">Click to upload</span>
+                        <Upload className="w-5 h-5 text-[#B7B0A0] mx-auto mb-1" strokeWidth={1.5} />
+                        <span className="text-xs text-[#8A8374]">Click to upload</span>
                       </>
                     )}
                   </div>
@@ -218,20 +225,20 @@ const DocumentUploadStep = ({
 
               {/* OCR match indicators — Aadhaar only, after OCR completes */}
               {doc.type === 'aadhaar' && ocrDone && ocrResult && (
-                <div className="mt-2 pt-2 border-t border-gray-100 space-y-1">
+                <div className="mt-2 pt-2 border-t border-[#DCD6C8] space-y-1">
                   {ocrResult.nameScore >= 0.8 ? (
-                    <p className="text-xs text-green-600 flex items-center gap-1">
+                    <p className="text-xs text-[#2F6F4F] flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Name matches document
                     </p>
                   ) : (
-                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                    <p className="text-xs text-[#8B2E2E] flex items-center gap-1">
                       <span>⚠</span>
                       Name on document doesn't quite match what you entered — please double-check
                     </p>
                   )}
                   {ocrResult.dobFound && (
-                    <p className="text-xs text-green-600 flex items-center gap-1">
+                    <p className="text-xs text-[#2F6F4F] flex items-center gap-1">
                       <CheckCircle className="w-3.5 h-3.5" />
                       Date of birth found in document
                     </p>
@@ -246,23 +253,23 @@ const DocumentUploadStep = ({
       <div className="flex justify-between mt-8">
         <button
           onClick={() => setCurrentStep(1)}
-          className="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-xl hover:bg-gray-50 transition flex items-center gap-2"
+          className="px-6 py-3 border border-[#DCD6C8] text-[#16213E] font-medium rounded-sm hover:bg-[#FAF8F3] transition flex items-center gap-2"
         >
-          <ChevronLeft className="w-5 h-5" /> Back
+          <ChevronLeft className="w-4 h-4" /> Back
         </button>
         <div className="flex gap-3">
           <button
             onClick={handleSaveApplication}
-            className="px-6 py-3 border border-blue-600 text-blue-600 font-semibold rounded-xl hover:bg-blue-50 transition flex items-center gap-2"
+            className="px-6 py-3 border border-[#16213E] text-[#16213E] font-medium rounded-sm hover:bg-[#16213E]/5 transition flex items-center gap-2"
           >
             Save Progress
           </button>
           <button
             onClick={() => setCurrentStep(3)}
             disabled={!allDocsUploaded}
-            className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-8 py-3 bg-[#16213E] hover:bg-[#0F1729] text-[#FFFEFB] font-medium rounded-sm shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Review & Submit <ChevronRight className="w-5 h-5" />
+            Review & Submit <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>

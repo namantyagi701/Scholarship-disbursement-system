@@ -1,4 +1,4 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../assets/assets'
 import { AppContent } from '../context/AppContext'
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,32 @@ function EmailVerify() {
 
   axios.defaults.withCredentials = true;
   const {backendUrl, isLoggedin , userData , getUserData} = useContext(AppContent)
+  const [otpSent, setOtpSent] = useState(false);
+  const [sending, setSending] = useState(false);
+
+  // Auto-send OTP when the page loads
+  useEffect(() => {
+    if (isLoggedin && !otpSent) {
+      sendOtp();
+    }
+  }, [isLoggedin]);
+
+  const sendOtp = async () => {
+    setSending(true);
+    try {
+      const { data } = await axios.post(backendUrl + '/api/auth/send-verify-otp');
+      if (data.success) {
+        toast.success(data.message);
+        setOtpSent(true);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to send OTP');
+    } finally {
+      setSending(false);
+    }
+  };
 
   const navigate = useNavigate()
 
@@ -53,14 +79,14 @@ function EmailVerify() {
         toast.error(data.message)
       }
     }catch (error){
-        toast.error(error.message)
+        toast.error(error.response?.data?.message || error.message)
     }
   }
 
   return (
     <div className='flex items-center justify-center min-h-screen bg-blue-100'>
       <img onClick={() => navigate('/')} src={assets.logo} alt="" className='absolute left-5 sm:left-20 top-5 w-28 sm:w-32 cursor-pointer' />
-      <form className='bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm'>
+      <form onSubmit={onSubmitHandler} className='bg-slate-900 p-8 rounded-lg shadow-lg w-96 text-sm'>
         <h1 className='text-white text-2xl font-semibold text-center mb-4'>Email Verify OTP</h1>
         <p className='text-center mb-6 text-indigo-300'>Enter the 6-digit code sent to your email id.</p>
          <div className='flex justify-between mb-8' onPaste={handlePaste}>
@@ -70,11 +96,19 @@ function EmailVerify() {
               ref = {e => inputRefs.current[index] = e}
               onInput={(e) => handleInput(e , index)}
               onKeyDown={(e) => handleKeyDown(e , index)}
-              onSubmit={onSubmitHandler}
+
             />
           ))}
         </div>
-        <button className='w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full'>Verify email</button>
+        <button type="submit" className='w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full'>Verify email</button>
+        <button
+          type="button"
+          onClick={sendOtp}
+          disabled={sending}
+          className='mt-3 w-full py-2 text-indigo-300 hover:text-white text-sm transition-colors'
+        >
+          {sending ? 'Sending...' : 'Resend OTP'}
+        </button>
       </form>
 
     </div>

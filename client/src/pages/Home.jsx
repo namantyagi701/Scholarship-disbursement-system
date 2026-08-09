@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { FileText, UserCheck, Banknote, Zap, Shield, CheckCircle, Globe, Settings, LayoutGrid } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useReducedMotion } from 'framer-motion';
 
 /* ------------------------------------------------------------------ */
 /*  Gold contour lines — same motif used on login/landing pages        */
 /* ------------------------------------------------------------------ */
 const ContourLines = () => (
   <motion.svg
-    className="absolute bottom-0 left-0 w-full"
+    className="absolute bottom-0 left-0 w-full pointer-events-none"
     style={{ height: '38%' }}
     viewBox="0 0 1440 400"
     preserveAspectRatio="none"
@@ -27,6 +27,68 @@ const ContourLines = () => (
 );
 
 /* ------------------------------------------------------------------ */
+/*  Hero Seal Stamp Animation                                          */
+/* ------------------------------------------------------------------ */
+const SealStamp = () => {
+  const shouldReduceMotion = useReducedMotion();
+
+  const stampVariants = {
+    hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 1.4, y: shouldReduceMotion ? 0 : -15 },
+    visible: { 
+      opacity: 0.9, 
+      scale: 1, 
+      y: 0,
+      transition: { type: "spring", damping: 12, stiffness: 200, delay: 0.3 }
+    }
+  };
+
+  const bleedVariants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: {
+      opacity: [0, 0.15, 0],
+      scale: [1, 1.25, 1.35],
+      transition: { duration: 0.45, delay: 0.4, ease: "easeOut" }
+    }
+  };
+
+  return (
+    <div className="absolute -right-4 -top-8 sm:-right-16 sm:-top-12 w-24 h-24 sm:w-32 sm:h-32 pointer-events-none z-20">
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={stampVariants}
+        className="relative w-full h-full"
+      >
+        {/* Ink Bleed Ring */}
+        {!shouldReduceMotion && (
+          <motion.div
+            variants={bleedVariants}
+            className="absolute inset-1 rounded-full bg-[#B8860B] blur-sm mix-blend-screen"
+          />
+        )}
+        
+        {/* Stamp SVG */}
+        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-6 drop-shadow-sm">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="#B8860B" strokeWidth="1.5" />
+          <circle cx="50" cy="50" r="39" fill="none" stroke="#B8860B" strokeWidth="0.8" strokeDasharray="3 2" />
+          
+          {/* Text along circle */}
+          <path id="sealCurve" d="M 16, 50 A 34, 34 0 1, 1 84, 50 A 34, 34 0 1, 1 16, 50" fill="none" />
+          <text fill="#B8860B" fontSize="10.5" fontWeight="600" letterSpacing="3.5" fontFamily="monospace">
+            <textPath href="#sealCurve" startOffset="3%">
+              PMSSS • VERIFIED • PMSSS •
+            </textPath>
+          </text>
+          
+          {/* Inner check icon */}
+          <path d="M 38,51 L 46,59 L 64,39" fill="none" stroke="#B8860B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </motion.div>
+    </div>
+  );
+};
+
+/* ------------------------------------------------------------------ */
 /*  Hero                                                               */
 /* ------------------------------------------------------------------ */
 const Hero = () => (
@@ -44,11 +106,14 @@ const Hero = () => (
       </p>
 
       {/* Headline */}
-      <h1 className="font-serif-display text-[clamp(2.4rem,6vw,4.5rem)] font-normal leading-[1.08] text-[#FFFEFB] max-w-[640px] mb-6">
-        A smarter way to{' '}
-        <br className="hidden sm:block" />
-        manage scholarships.
-      </h1>
+      <div className="relative inline-block max-w-[640px] mb-6">
+        <h1 className="font-serif-display text-[clamp(2.4rem,6vw,4.5rem)] font-normal leading-[1.08] text-[#FFFEFB]">
+          A smarter way to{' '}
+          <br className="hidden sm:block" />
+          manage scholarships.
+        </h1>
+        <SealStamp />
+      </div>
 
       {/* Sub-copy */}
       <p className="text-base sm:text-lg text-[#FFFEFB]/40 max-w-[500px] leading-relaxed mb-10">
@@ -152,6 +217,12 @@ const HowItWorks = () => {
     { number: '03', icon: Banknote, title: 'Fund Release & Tracking', desc: 'Approved students receive payments directly into their bank accounts.' },
   ];
 
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
+
   return (
     <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 bg-[#FAF8F3] border-t border-[#DCD6C8]">
       <div className="max-w-[900px] mx-auto">
@@ -172,9 +243,23 @@ const HowItWorks = () => {
         </motion.div>
 
         {/* Steps — vertical numbered docket stepper */}
-        <div className="relative">
+        <div className="relative" ref={containerRef}>
           {/* Vertical connector line */}
-          <div className="absolute left-[19px] top-0 bottom-0 w-px bg-[#DCD6C8]" aria-hidden="true" />
+          <div className="absolute left-[19px] top-4 bottom-12 w-px bg-[#DCD6C8]" aria-hidden="true" />
+          
+          {/* Animated scroll-drawn thread */}
+          <svg className="absolute left-[19px] top-4 bottom-12 w-2 h-[calc(100%-4rem)] -ml-[0.5px] pointer-events-none" aria-hidden="true">
+            <motion.line
+              x1="1"
+              y1="0"
+              x2="1"
+              y2="100%"
+              stroke="#B8860B"
+              strokeWidth="1.5"
+              strokeOpacity="0.5"
+              style={{ pathLength: scrollYProgress }}
+            />
+          </svg>
 
           <motion.div 
             className="space-y-0"

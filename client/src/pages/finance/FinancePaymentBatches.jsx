@@ -11,32 +11,9 @@ import {
   Download,
   FileText,
   Calendar,
-  IndianRupee,
-  Users,
-  ArrowRight,
   X,
 } from "lucide-react";
-
-const statusBadge = (status) => {
-  const map = {
-    Generated: "bg-blue-100 text-blue-700 border-blue-200",
-    "Sent to Bank": "bg-yellow-100 text-yellow-700 border-yellow-200",
-    Processing: "bg-orange-100 text-orange-700 border-orange-200",
-    Completed: "bg-green-100 text-green-700 border-green-200",
-  };
-  const dotMap = {
-    Generated: "bg-blue-500",
-    "Sent to Bank": "bg-yellow-500",
-    Processing: "bg-orange-500",
-    Completed: "bg-green-500",
-  };
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${map[status] || map.Generated}`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${dotMap[status] || dotMap.Generated}`} />
-      {status}
-    </span>
-  );
-};
+import StatusStamp from "../../components/ui/StatusStamp";
 
 const FinancePaymentBatches = () => {
   const { backendUrl } = useContext(AppContent);
@@ -97,213 +74,207 @@ const FinancePaymentBatches = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex items-center justify-center min-h-[60vh] bg-[#FAF8F3]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#16213E]" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-[#FAF8F3] text-[#16213E] font-sans pb-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Payment Batches</h1>
-        <p className="text-gray-500 mt-1">View and manage all payment batch history</p>
+      <div className="bg-[#FFFEFB] border-b border-[#DCD6C8] px-8 py-10 mb-8 flex flex-col items-center justify-center text-center shadow-sm">
+        <p className="font-mono-data text-xs text-[#B8860B] tracking-widest uppercase mb-3">PMSSS · Finance</p>
+        <h1 className="font-serif-display text-4xl text-[#16213E]">Payment Batches</h1>
+        <p className="font-mono-data text-sm text-[#16213E]/60 mt-3">View and manage all payment batch history</p>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-            <Package className="w-5 h-5 text-blue-600" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Ledger Summary Strip */}
+        <div className="bg-[#FFFEFB] border border-[#DCD6C8] rounded-sm flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x divide-[#DCD6C8] mb-8 shadow-sm">
+          <div className="flex-1 p-5 text-center">
+            <p className="font-serif-display text-3xl text-[#16213E] mb-1">{batches.length}</p>
+            <p className="font-mono-data text-xs text-[#16213E]/60 uppercase tracking-widest">Total Batches</p>
           </div>
-          <div>
-            <p className="text-2xl font-bold text-gray-900">{batches.length}</p>
-            <p className="text-xs text-gray-500">Total Batches</p>
+          <div className="flex-1 p-5 text-center">
+            <p className="font-serif-display text-3xl text-[#16213E] mb-1">{totalStudents}</p>
+            <p className="font-mono-data text-xs text-[#16213E]/60 uppercase tracking-widest">Students Processed</p>
           </div>
-        </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-            <Users className="w-5 h-5 text-purple-600" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-gray-900">{totalStudents}</p>
-            <p className="text-xs text-gray-500">Total Students Processed</p>
+          <div className="flex-1 p-5 text-center">
+            <p className="font-mono-data text-3xl text-[#16213E] mb-1">₹{totalAmount.toLocaleString("en-IN")}</p>
+            <p className="font-mono-data text-xs text-[#16213E]/60 uppercase tracking-widest">Total Amount</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm flex items-center gap-4">
-          <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-            <IndianRupee className="w-5 h-5 text-green-600" />
-          </div>
-          <div>
-            <p className="text-2xl font-bold text-gray-900">₹{totalAmount.toLocaleString("en-IN")}</p>
-            <p className="text-xs text-gray-500">Total Amount</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by batch ID or generated by..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Table */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">No payment batches found</p>
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#16213E]/40" />
+          <input
+            type="text"
+            placeholder="Search by batch ID or generated by..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-8 pr-4 py-2 border-0 border-b border-[#DCD6C8] bg-transparent text-sm focus:outline-none focus:border-[#16213E] focus:ring-0 font-mono-data placeholder-[#16213E]/40"
+          />
         </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Batch ID</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Parent Batch</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Generated Date</th>
-                  <th className="text-center px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Students</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Total Amount</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.map((batch) => (
-                  <tr key={batch._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-mono font-semibold text-gray-900">{batch.batchId}</td>
-                    <td className="px-6 py-4 text-sm">
-                      {batch.parentBatchId ? (
-                        <button
-                          onClick={() => navigate(`/finance/batch/${batch.parentBatchId}`)}
-                          className="text-blue-600 hover:underline font-mono text-xs"
-                        >
-                          {batch.parentBatchId}
-                        </button>
-                      ) : (
-                        <span className="text-gray-400">—</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {batch.generatedAt ? new Date(batch.generatedAt).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        }) : "—"}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-center font-semibold">{batch.totalStudents}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                      ₹{(batch.totalAmount || 0).toLocaleString("en-IN")}
-                    </td>
-                    <td className="px-6 py-4">{statusBadge(batch.status)}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => navigate(`/finance/batch/${batch.batchId}`)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-medium transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                          View
-                        </button>
-                        <button
-                          onClick={() => handleDownloadCsv(batch.batchId)}
-                          className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded-lg text-xs font-medium transition-colors"
-                          title="Download CSV"
-                        >
-                          <Download className="w-3.5 h-3.5" />
-                          CSV
-                        </button>
-                        {batch.status === "Completed" && (
-                          <button
-                            onClick={() => setReportModal(batch)}
-                            className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded-lg text-xs font-medium transition-colors"
-                            title="Payment Report"
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                            Report
-                          </button>
-                        )}
-                      </div>
-                    </td>
+
+        {/* Table */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 bg-[#FFFEFB] rounded-sm border border-[#DCD6C8]">
+            <Package className="w-10 h-10 text-[#16213E]/20 mx-auto mb-3" />
+            <p className="text-[#16213E]/60 font-mono-data text-sm uppercase tracking-widest">No payment batches found</p>
+          </div>
+        ) : (
+          <div className="bg-[#FFFEFB] rounded-sm border border-[#DCD6C8] overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-[#FAF8F3] border-b border-[#DCD6C8]">
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Batch ID</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Parent Batch</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Generated Date</th>
+                    <th className="text-center px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Students</th>
+                    <th className="text-right px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Total Amount</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Status</th>
+                    <th className="text-right px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#DCD6C8]">
+                  {filtered.map((batch) => (
+                    <tr key={batch._id} className="hover:bg-[#FAF8F3] transition-colors">
+                      <td className="px-6 py-4 text-sm font-mono-data font-semibold text-[#16213E]">{batch.batchId}</td>
+                      <td className="px-6 py-4 text-sm">
+                        {batch.parentBatchId ? (
+                          <button
+                            onClick={() => navigate(`/finance/batch/${batch.parentBatchId}`)}
+                            className="text-[#16213E] hover:text-[#B8860B] underline font-mono-data text-xs transition-colors"
+                          >
+                            {batch.parentBatchId}
+                          </button>
+                        ) : (
+                          <span className="text-[#16213E]/40">—</span>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E]/70">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[#16213E]/40" />
+                          <span className="font-mono-data">
+                            {batch.generatedAt ? new Date(batch.generatedAt).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric",
+                            }) : "—"}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E] text-center font-mono-data">{batch.totalStudents}</td>
+                      <td className="px-6 py-4 text-sm text-[#16213E] text-right font-mono-data font-medium">
+                        ₹{(batch.totalAmount || 0).toLocaleString("en-IN")}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="scale-75 origin-left">
+                          <StatusStamp status={batch.status} />
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => navigate(`/finance/batch/${batch.batchId}`)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#16213E] text-[#16213E] hover:bg-[#16213E] hover:text-[#FFFEFB] rounded-sm text-xs font-mono-data uppercase tracking-wider transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View
+                          </button>
+                          <button
+                            onClick={() => handleDownloadCsv(batch.batchId)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#16213E]/30 text-[#16213E]/70 hover:border-[#16213E] hover:text-[#16213E] rounded-sm text-xs font-mono-data uppercase tracking-wider transition-colors"
+                            title="Download CSV"
+                          >
+                            <Download className="w-3.5 h-3.5" />
+                            CSV
+                          </button>
+                          {batch.status === "Completed" && (
+                            <button
+                              onClick={() => setReportModal(batch)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-[#2F6F4F] text-[#2F6F4F] hover:bg-[#2F6F4F] hover:text-[#FFFEFB] rounded-sm text-xs font-mono-data uppercase tracking-wider transition-colors"
+                              title="Payment Report"
+                            >
+                              <FileText className="w-3.5 h-3.5" />
+                              Report
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Payment Report Modal */}
       {reportModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">Payment Report</h3>
-              <button onClick={() => setReportModal(null)} className="text-gray-400 hover:text-gray-600">
+          <div className="bg-[#FFFEFB] border border-[#DCD6C8] rounded-sm w-full max-w-lg p-6 max-h-[80vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-xl font-serif-display text-[#16213E]">Payment Report</h3>
+              <button onClick={() => setReportModal(null)} className="text-[#16213E]/40 hover:text-[#16213E] transition-colors">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="space-y-3 mb-6">
+            <div className="space-y-4 mb-6 pb-6 border-b border-[#DCD6C8]">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Batch ID</span>
-                <span className="font-mono font-semibold text-gray-900">{reportModal.batchId}</span>
+                <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Batch ID</span>
+                <span className="font-mono-data font-semibold text-[#16213E]">{reportModal.batchId}</span>
               </div>
               {reportModal.parentBatchId && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Retry of</span>
-                  <span className="font-mono text-blue-600">{reportModal.parentBatchId}</span>
+                  <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Retry of</span>
+                  <span className="font-mono-data text-[#16213E]">{reportModal.parentBatchId}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Generated By</span>
-                <span className="text-gray-900">{reportModal.generatedBy?.fullName || "—"}</span>
+                <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Generated By</span>
+                <span className="text-[#16213E] text-sm">{reportModal.generatedBy?.fullName || "—"}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Date</span>
-                <span className="text-gray-900">
+                <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Date</span>
+                <span className="text-[#16213E] font-mono-data">
                   {reportModal.generatedAt ? new Date(reportModal.generatedAt).toLocaleString("en-IN") : "—"}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Total Students</span>
-                <span className="font-semibold text-gray-900">{reportModal.totalStudents}</span>
+                <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Total Students</span>
+                <span className="font-mono-data font-semibold text-[#16213E]">{reportModal.totalStudents}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-500">Total Amount</span>
-                <span className="font-semibold text-gray-900">₹{(reportModal.totalAmount || 0).toLocaleString("en-IN")}</span>
+                <span className="text-[#16213E]/60 font-mono-data uppercase tracking-wider text-xs">Total Amount</span>
+                <span className="font-mono-data font-semibold text-[#16213E]">₹{(reportModal.totalAmount || 0).toLocaleString("en-IN")}</span>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <div className="bg-green-50 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-green-700">
+            <div className="grid grid-cols-3 gap-0 border border-[#DCD6C8] divide-x divide-[#DCD6C8] mb-6 rounded-sm">
+              <div className="bg-[#FFFEFB] p-4 text-center">
+                <p className="text-xl font-mono-data font-bold text-[#2F6F4F] mb-1">
                   {reportModal.applications?.filter((a) => a.paymentStatus === "Paid").length || 0}
                 </p>
-                <p className="text-xs text-green-600">Paid</p>
+                <p className="text-xs font-mono-data uppercase tracking-wider text-[#16213E]/60">Paid</p>
               </div>
-              <div className="bg-red-50 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-red-700">
+              <div className="bg-[#FFFEFB] p-4 text-center">
+                <p className="text-xl font-mono-data font-bold text-[#8B2E2E] mb-1">
                   {reportModal.applications?.filter((a) => a.paymentStatus === "Failed").length || 0}
                 </p>
-                <p className="text-xs text-red-600">Failed</p>
+                <p className="text-xs font-mono-data uppercase tracking-wider text-[#16213E]/60">Failed</p>
               </div>
-              <div className="bg-yellow-50 rounded-lg p-3 text-center">
-                <p className="text-lg font-bold text-yellow-700">
+              <div className="bg-[#FFFEFB] p-4 text-center">
+                <p className="text-xl font-mono-data font-bold text-[#B8860B] mb-1">
                   {reportModal.applications?.filter((a) => a.paymentStatus === "Pending").length || 0}
                 </p>
-                <p className="text-xs text-yellow-600">Pending</p>
+                <p className="text-xs font-mono-data uppercase tracking-wider text-[#16213E]/60">Pending</p>
               </div>
             </div>
 
@@ -312,7 +283,7 @@ const FinancePaymentBatches = () => {
                 onClick={() => {
                   window.print();
                 }}
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+                className="px-5 py-2 bg-[#16213E] hover:bg-[#0F1729] text-[#FFFEFB] rounded-sm text-xs font-mono-data uppercase tracking-wider transition-colors"
               >
                 Print Report
               </button>

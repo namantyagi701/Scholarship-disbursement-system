@@ -10,8 +10,7 @@ const requiredDocuments = [
     "income_certificate",
     "marksheet",
     "admission_letter",
-    "bank_passbook",
-    "caste_certificate"
+    "bank_passbook"
 ]
 
 export const getProfile = async (req, res) => {

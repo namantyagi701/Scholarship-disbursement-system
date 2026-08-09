@@ -1,26 +1,38 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { FileText, UserCheck, Banknote } from 'lucide-react';
+import { ShieldCheck, FileText, UserCheck, ClipboardList, Banknote } from 'lucide-react';
 
 const HowItWorks = () => {
   const steps = [
     {
       number: '01',
-      icon: FileText,
-      title: 'Student Applies',
-      description: 'Students submit scholarship applications with required documents and academic records through the secure portal',
+      icon: ShieldCheck,
+      title: 'Verify Identity with Aadhaar',
+      description: 'Students begin by verifying their 12-digit Aadhaar number through the secure portal. Once verified, your identity is linked to your application — no duplicate submissions, no impersonation.',
     },
     {
       number: '02',
-      icon: UserCheck,
-      title: 'SAG Verifies',
-      description: 'State Admin Group reviews, verifies documents, and approves eligible applications ensuring transparency',
+      icon: FileText,
+      title: 'Fill Application & Upload Documents',
+      description: 'Complete the scholarship form with your personal, academic, and bank details. Upload required documents — Aadhaar card, income certificate, marksheets, admission letter, and bank passbook. Aadhaar uploads are OCR-scanned to cross-check your name automatically.',
     },
     {
       number: '03',
+      icon: UserCheck,
+      title: 'SAG Reviews & Verifies',
+      description: 'The Scholarship Administration Group reviews each application individually — verifying documents, checking eligibility, and cross-referencing details. Applications are either approved for disbursement or sent back with specific rejection reasons for correction.',
+    },
+    {
+      number: '04',
+      icon: ClipboardList,
+      title: 'Finance Batches Payments',
+      description: 'Approved applications are grouped into payment batches by the Finance Bureau. Each batch validates bank account details, IFSC codes, and account holder names before being sent to the bank for processing.',
+    },
+    {
+      number: '05',
       icon: Banknote,
-      title: 'Finance Disburses',
-      description: 'Finance Bureau validates bank details, processes payments, and completes scholarship disbursement',
+      title: 'Scholarship Disbursed',
+      description: 'Funds are transferred directly to your verified bank account. Track your payment status in real time — from batch generation through bank processing to final disbursement — all from your student dashboard.',
     }
   ];
 

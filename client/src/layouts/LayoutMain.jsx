@@ -9,7 +9,7 @@ const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="relative min-h-screen flex bg-gray-50">
+    <div className="relative min-h-screen flex bg-[#FAF8F3]">
 
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
@@ -21,7 +21,7 @@ const MainLayout = () => {
         }`}
       >
         {/* Header bar */}
-        <div className="sticky top-0 z-30 bg-white shadow-sm">
+        <div className="sticky top-0 z-30 bg-[#FFFEFB] border-b border-[#DCD6C8]">
           <Header onMenuToggle={() => setSidebarOpen(!sidebarOpen)} />
         </div>
 

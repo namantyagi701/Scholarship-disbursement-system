@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AppContent } from '../../context/AppContext';
 import { toast } from 'react-toastify';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   ShieldCheck,
   FileText,
@@ -30,7 +31,7 @@ const REQUIRED_DOCUMENTS = [
   { type: 'marksheet', label: 'Marksheet / Transcript' },
   { type: 'admission_letter', label: 'Admission Letter' },
   { type: 'bank_passbook', label: 'Bank Passbook' },
-  { type: 'caste_certificate', label: 'Caste Certificate' },
+  { type: 'caste_certificate', label: 'Caste Certificate', optional: true },
 ];
 
 const ScholarshipApplication = () => {
@@ -40,6 +41,20 @@ const ScholarshipApplication = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+
+  // Framer motion state for steps
+  const prevStepRef = useRef(currentStep);
+  const [direction, setDirection] = useState(1);
+  const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (currentStep > prevStepRef.current) {
+      setDirection(1);
+    } else if (currentStep < prevStepRef.current) {
+      setDirection(-1);
+    }
+    prevStepRef.current = currentStep;
+  }, [currentStep]);
 
   // Step 1: Aadhaar
   const [aadhaarNumber, setAadhaarNumber] = useState('');
@@ -150,7 +165,7 @@ const ScholarshipApplication = () => {
               if (userData?.aadhaarVerified) {
                 const hasForm = app.formData && ['name', 'email', 'fatherName', 'dateOfBirth', 'contactNumber', 'address', 'courseName', 'instituteName', 'annualFamilyIncome', 'bankName'].every(k => app.formData[k]);
                 const hasBank = app.bankAccountNumber && app.ifscCode && app.accountHolderName;
-                const hasAllDocs = REQUIRED_DOCUMENTS.every(d => fetchedDocsLocal[d.type]);
+                const hasAllDocs = REQUIRED_DOCUMENTS.every(d => d.optional || fetchedDocsLocal[d.type]);
 
                 if (hasAllDocs) {
                   setCurrentStep(3);
@@ -244,16 +259,20 @@ const ScholarshipApplication = () => {
       if (data.success) {
         if (isDraftSave) {
           toast.success("Progress saved");
+          return true;
         } else {
           toast.success(data.message);
           setApplicationId(data.applicationId);
           setCurrentStep(2);
+          return true;
         }
       } else {
         toast.error(data.message);
+        return false;
       }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to save application');
+      return false;
     } finally {
       setLoading(false);
     }
@@ -298,7 +317,7 @@ const ScholarshipApplication = () => {
     }
   };
 
-  const allDocsUploaded = REQUIRED_DOCUMENTS.every((d) => uploadedDocs[d.type]);
+  const allDocsUploaded = REQUIRED_DOCUMENTS.every((d) => d.optional || uploadedDocs[d.type]);
 
   // ----- Step 4: Submit -----
   const handleSubmitApplication = async () => {
@@ -321,19 +340,22 @@ const ScholarshipApplication = () => {
   // ---- Loading State ----
   if (initialLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF8F3]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#16213E]" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[#FAF8F3] py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Scholarship Application</h1>
-          <p className="text-gray-500 mt-1">Complete all steps to submit your PMSSS application</p>
+          <p className="font-mono-data text-xs tracking-[0.2em] uppercase text-[#B8860B] mb-2">
+            PMSSS &middot; Applicant Portal
+          </p>
+          <h1 className="font-serif-display text-3xl sm:text-4xl font-normal text-[#16213E]">Scholarship Application</h1>
+          <p className="text-[#6B6558] mt-2">Complete all steps to submit your PMSSS application</p>
         </div>
 
         {/* Step Indicator */}
@@ -347,27 +369,31 @@ const ScholarshipApplication = () => {
               <React.Fragment key={step.label}>
                 <div className="flex flex-col items-center relative">
                   <div
-                    className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${isCompleted
-                        ? 'bg-green-500 border-green-500 text-white'
+                    className={`w-12 h-12 rounded-full flex items-center justify-center border transition-all duration-300 font-serif-display text-sm ${isCompleted
+                        ? 'bg-[#16213E] border-[#16213E] text-[#FFFEFB]'
                         : isCurrent
-                          ? 'bg-blue-600 border-blue-600 text-white'
-                          : 'bg-white border-gray-300 text-gray-400'
+                          ? 'bg-transparent border-[#B8860B] text-[#B8860B]'
+                          : 'bg-[#FFFEFB] border-[#DCD6C8] text-[#B7B0A0]'
                       }`}
                   >
-                    {isCompleted ? <CheckCircle className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
+                    {isCompleted ? <CheckCircle className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
                   </div>
                   <span
-                    className={`text-xs mt-2 text-center font-medium hidden sm:block ${isCompleted ? 'text-green-600' : isCurrent ? 'text-blue-600' : 'text-gray-400'
+                    className={`text-xs mt-2 text-center font-medium hidden sm:block ${isCompleted ? 'text-[#16213E]' : isCurrent ? 'text-[#B8860B]' : 'text-[#B7B0A0]'
                       }`}
                   >
                     {step.label}
                   </span>
                 </div>
                 {index < STEPS.length - 1 && (
-                  <div
-                    className={`flex-1 h-0.5 mx-2 transition-colors duration-300 ${index < currentStep ? 'bg-green-500' : 'bg-gray-300'
-                      }`}
-                  />
+                  <div className="flex-1 h-[1px] mx-2 bg-[#DCD6C8] relative overflow-hidden">
+                    <motion.div
+                      className="absolute inset-0 bg-[#16213E] origin-left"
+                      initial={false}
+                      animate={{ scaleX: index < currentStep ? 1 : 0 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                    />
+                  </div>
                 )}
               </React.Fragment>
             );
@@ -375,7 +401,31 @@ const ScholarshipApplication = () => {
         </div>
 
         {/* Step Content Card */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+        <div className="bg-[#FFFEFB] rounded-sm border border-[#DCD6C8] p-6 sm:p-8 overflow-hidden shadow-sm">
+          <AnimatePresence mode="wait" custom={direction} initial={false}>
+            <motion.div
+              key={currentStep}
+              custom={direction}
+              variants={{
+                enter: (dir) => ({
+                  x: shouldReduceMotion ? 0 : dir > 0 ? 30 : -30,
+                  opacity: 0,
+                }),
+                center: {
+                  x: 0,
+                  opacity: 1,
+                  transition: { duration: 0.3, ease: 'easeOut' }
+                },
+                exit: (dir) => ({
+                  x: shouldReduceMotion ? 0 : dir > 0 ? -30 : 30,
+                  opacity: 0,
+                  transition: { duration: 0.2, ease: 'easeIn' }
+                }),
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+            >
 
           {currentStep === 0 && !aadhaarVerified && (
             <AadhaarStep
@@ -424,6 +474,7 @@ const ScholarshipApplication = () => {
               navigate={navigate}
               formData={formData}
               REQUIRED_DOCUMENTS={REQUIRED_DOCUMENTS}
+              uploadedDocs={uploadedDocs}
               bankAccountNumber={bankAccountNumber}
               ifscCode={ifscCode}
               accountHolderName={accountHolderName}
@@ -432,6 +483,8 @@ const ScholarshipApplication = () => {
               loading={loading}
             />
           )}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </div>

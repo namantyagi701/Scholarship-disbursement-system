@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { AppContent } from "../../context/AppContext";
+import { motion, useReducedMotion } from "framer-motion";
 import {
-  CheckCircle2,
   FileText,
   Eye,
   ArrowRight,
@@ -21,11 +21,19 @@ import LedgerRow from "../../components/ui/LedgerRow";
 const StudentDashboard = () => {
   const navigate = useNavigate();
   const { backendUrl, userData } = useContext(AppContent);
+  const shouldReduceMotion = useReducedMotion();
 
   const [loading, setLoading] = useState(true);
   const [application, setApplication] = useState(null);
   const [payment, setPayment] = useState(null);
   const [hasApplication, setHasApplication] = useState(false);
+
+  // Redirect to scholarship application if Aadhaar is not verified yet
+  useEffect(() => {
+    if (userData && !userData.aadhaarVerified) {
+      navigate('/scholarship-application', { replace: true });
+    }
+  }, [userData, navigate]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -127,6 +135,16 @@ const StudentDashboard = () => {
     },
   ];
 
+  // Framer motion variants for stagger
+  const staggerContainer = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.04 } }
+  };
+  const staggerItem = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 8 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#FAF8F3]">
@@ -202,15 +220,15 @@ const StudentDashboard = () => {
                   {docketSteps.map((step, i) => (
                     <div key={step.no} className="relative flex gap-4 pb-6 last:pb-0">
                       {i !== docketSteps.length - 1 && (
-                        <div
+                        <motion.div
                           className="absolute left-[15px] top-8 bottom-0 w-px"
-                          style={{
-                            backgroundColor: step.done ? "#16213E" : "#DCD6C8",
-                          }}
+                          initial={false}
+                          animate={{ backgroundColor: step.done ? "#16213E" : "#DCD6C8" }}
+                          transition={{ duration: 0.3 }}
                         />
                       )}
                       <div
-                        className="relative z-10 shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-serif-display text-xs"
+                        className="relative z-10 shrink-0 w-8 h-8 rounded-full border flex items-center justify-center font-serif-display text-xs transition-colors duration-300"
                         style={{
                           borderColor: step.rejected
                             ? "#8B2E2E"
@@ -234,14 +252,21 @@ const StudentDashboard = () => {
                         {step.rejected ? (
                           <XCircle className="w-3.5 h-3.5" />
                         ) : step.done ? (
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <motion.path 
+                              d="M20 6L9 17l-5-5"
+                              initial={shouldReduceMotion ? { pathLength: 1 } : { pathLength: 0 }}
+                              animate={{ pathLength: 1 }}
+                              transition={{ duration: 0.3, ease: "easeOut" }}
+                            />
+                          </svg>
                         ) : (
                           step.no
                         )}
                       </div>
                       <div className="pt-0.5">
                         <p
-                          className="text-sm font-medium"
+                          className="text-sm font-medium transition-colors duration-300"
                           style={{
                             color: step.rejected
                               ? "#8B2E2E"
@@ -268,17 +293,22 @@ const StudentDashboard = () => {
                 </p>
 
                 {Object.keys(formData).length > 0 ? (
-                  <div>
+                  <motion.div
+                    variants={staggerContainer}
+                    initial="hidden"
+                    animate="visible"
+                  >
                     {Object.entries(formData).map(([key, value]) =>
                       value ? (
-                        <LedgerRow
-                          key={key}
-                          label={key.replace(/([A-Z])/g, " $1")}
-                          value={value}
-                        />
+                        <motion.div key={key} variants={staggerItem}>
+                          <LedgerRow
+                            label={key.replace(/([A-Z])/g, " $1")}
+                            value={value}
+                          />
+                        </motion.div>
                       ) : null
                     )}
-                  </div>
+                  </motion.div>
                 ) : (
                   <p className="text-sm text-[#8A8374] italic">
                     No form data saved yet.
@@ -317,10 +347,14 @@ const StudentDashboard = () => {
             </div>
 
             {/* ---- Right: actions, receipt, identity ---- */}
-            <div className="space-y-6">
-
+            <motion.div
+              className="space-y-6"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {/* Quick actions — plain list, no colored icon chips */}
-              <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
+              <motion.div variants={staggerItem} className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
                 <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374] mb-3">
                   Actions
                 </p>
@@ -340,10 +374,10 @@ const StudentDashboard = () => {
                   <span className="font-medium">View Documents</span>
                   <ArrowRight className="w-3.5 h-3.5 ml-auto opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all" />
                 </button>
-              </div>
+              </motion.div>
 
               {/* Payment — styled like a tear-off receipt / chalan */}
-              <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5 relative overflow-hidden">
+              <motion.div variants={staggerItem} className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5 relative overflow-hidden">
                 <div className="flex items-center gap-2 mb-4">
                   <IndianRupee className="w-4 h-4 text-[#16213E]" strokeWidth={1.5} />
                   <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374]">
@@ -376,10 +410,10 @@ const StudentDashboard = () => {
                       : "Released once SAG verification is complete."}
                   </p>
                 )}
-              </div>
+              </motion.div>
 
               {/* Identity card */}
-              <div className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
+              <motion.div variants={staggerItem} className="border border-[#DCD6C8] bg-[#FFFEFB] rounded-sm p-5">
                 <div className="flex items-center gap-2 mb-4">
                   <ShieldCheck className="w-4 h-4 text-[#16213E]" strokeWidth={1.5} />
                   <p className="font-mono-data text-[11px] tracking-[0.2em] uppercase text-[#8A8374]">
@@ -415,8 +449,8 @@ const StudentDashboard = () => {
                     )}
                   </div>
                 </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
         )}
       </div>

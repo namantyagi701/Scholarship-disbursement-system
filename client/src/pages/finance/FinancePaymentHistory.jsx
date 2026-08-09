@@ -1,14 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AppContent } from "../../context/AppContext";
-import {
-  CreditCard,
-  Loader2,
-  Search,
-  Calendar,
-  IndianRupee,
-  Landmark,
-} from "lucide-react";
+import { Loader2, Search, Calendar, Landmark, CreditCard } from "lucide-react";
 
 const maskAccount = (num) => {
   if (!num || num.length <= 4) return num || "—";
@@ -50,103 +43,105 @@ const FinancePaymentHistory = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      <div className="flex items-center justify-center min-h-[60vh] bg-[#FAF8F3]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#16213E]" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-[#FAF8F3] text-[#16213E] font-sans pb-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Payment History</h1>
-        <p className="text-gray-500 mt-1">All disbursed scholarship payments</p>
+      <div className="bg-[#FFFEFB] border-b border-[#DCD6C8] px-8 py-10 mb-8 flex flex-col items-center justify-center text-center shadow-sm">
+        <p className="font-mono-data text-xs text-[#B8860B] tracking-widest uppercase mb-3">PMSSS · Finance</p>
+        <h1 className="font-serif-display text-4xl text-[#16213E]">Payment History</h1>
+        <p className="font-mono-data text-sm text-[#16213E]/60 mt-3">All disbursed scholarship payments</p>
       </div>
 
-      {/* Summary */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8 shadow-sm flex items-center gap-6">
-        <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
-          <IndianRupee className="w-6 h-6 text-green-600" />
-        </div>
-        <div>
-          <p className="text-3xl font-bold text-gray-900">{applications.length}</p>
-          <p className="text-sm text-gray-500">Total Disbursements</p>
-        </div>
-      </div>
-
-      {/* Search */}
-      <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by name, email, or transaction ID..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
-
-      {/* Table */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16 bg-white rounded-xl border border-gray-200">
-          <CreditCard className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-          <p className="text-gray-500 font-medium">No payment records found</p>
-        </div>
-      ) : (
-        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 border-b border-gray-200">
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Student</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Email</th>
-                  <th className="text-right px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Amount</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Bank Details</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Transaction ID</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Disbursed By</th>
-                  <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filtered.map((app) => (
-                  <tr key={app._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                      {app.student?.fullName || "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{app.student?.email || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-900 text-right font-medium">
-                      {app.amount ? `₹${app.amount.toLocaleString("en-IN")}` : "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1.5">
-                        <Landmark className="w-3.5 h-3.5 text-gray-400" />
-                        <span className="font-mono">{maskAccount(app.bankAccountNumber)}</span>
-                        {app.ifscCode && <span className="text-gray-400 text-xs">({app.ifscCode})</span>}
-                      </div>
-                      {app.accountHolderName && (
-                        <p className="text-xs text-gray-400 mt-0.5">{app.accountHolderName}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-900 font-mono">
-                      {app.transactionId || "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      {app.disbursedBy?.fullName || "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5" />
-                        {app.disbursedAt ? new Date(app.disbursedAt).toLocaleDateString() : "—"}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Summary */}
+        <div className="bg-[#FFFEFB] border border-[#DCD6C8] rounded-sm flex mb-8">
+          <div className="flex-1 p-5 text-center">
+            <p className="font-serif-display text-3xl text-[#16213E] mb-1">{applications.length}</p>
+            <p className="font-mono-data text-xs text-[#16213E]/60 uppercase tracking-widest">Total Disbursements</p>
           </div>
         </div>
-      )}
+
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-[#16213E]/40" />
+          <input
+            type="text"
+            placeholder="Search by name, email, or transaction ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-8 pr-4 py-2 border-0 border-b border-[#DCD6C8] bg-transparent text-sm focus:outline-none focus:border-[#16213E] focus:ring-0 font-mono-data placeholder-[#16213E]/40"
+          />
+        </div>
+
+        {/* Table */}
+        {filtered.length === 0 ? (
+          <div className="text-center py-16 bg-[#FFFEFB] rounded-sm border border-[#DCD6C8]">
+            <CreditCard className="w-10 h-10 text-[#16213E]/20 mx-auto mb-3" />
+            <p className="text-[#16213E]/60 font-mono-data text-sm uppercase tracking-widest">No payment records found</p>
+          </div>
+        ) : (
+          <div className="bg-[#FFFEFB] rounded-sm border border-[#DCD6C8] overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-[#FAF8F3] border-b border-[#DCD6C8]">
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Student</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Email</th>
+                    <th className="text-right px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Amount</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Bank Details</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Transaction ID</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Disbursed By</th>
+                    <th className="px-6 py-4 text-xs font-mono-data text-[#16213E]/50 uppercase tracking-wider">Date</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#DCD6C8]">
+                  {filtered.map((app) => (
+                    <tr key={app._id} className="hover:bg-[#FAF8F3] transition-colors">
+                      <td className="px-6 py-4 text-sm font-medium text-[#16213E]">
+                        {app.student?.fullName || "—"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E]/70">{app.student?.email || "—"}</td>
+                      <td className="px-6 py-4 text-sm text-[#16213E] text-right font-mono-data font-medium">
+                        {app.amount ? `₹${app.amount.toLocaleString("en-IN")}` : "—"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E]/70">
+                        <div className="flex items-center gap-2">
+                          <Landmark className="w-3.5 h-3.5 text-[#16213E]/40" />
+                          <span className="font-mono-data">{maskAccount(app.bankAccountNumber)}</span>
+                          {app.ifscCode && <span className="text-[#16213E]/40 text-xs font-mono-data">({app.ifscCode})</span>}
+                        </div>
+                        {app.accountHolderName && (
+                          <p className="text-xs text-[#16213E]/50 mt-1 uppercase tracking-wide">{app.accountHolderName}</p>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E] font-mono-data">
+                        {app.transactionId || "—"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E]/70">
+                        {app.disbursedBy?.fullName || "—"}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-[#16213E]/70">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-[#16213E]/40" />
+                          <span className="font-mono-data">
+                            {app.disbursedAt ? new Date(app.disbursedAt).toLocaleDateString() : "—"}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

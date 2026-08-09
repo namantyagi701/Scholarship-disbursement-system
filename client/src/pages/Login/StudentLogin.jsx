@@ -135,6 +135,7 @@ const StudentLogin = () => {
       const { data } = await axios.post(backendUrl + '/api/auth/verify-account', { otp });
       if (data.success) {
         toast.success(data.message);
+        setIsLoggedin(true);
         getUserData();
         setRedirecting(true);
         setTimeout(() => navigate('/home'), 3000);
@@ -187,9 +188,9 @@ const StudentLogin = () => {
         });
 
         if (data.success) {
-          setIsLoggedin(true);
-          getUserData();
-          // Send verification OTP and show OTP screen
+          // Don't set isLoggedin yet — that would trigger PublicOnlyRoute
+          // to redirect to /home before the OTP screen can show.
+          // Send verification OTP and show OTP screen first.
           await sendOtp();
           setShowOtpScreen(true);
         } else {
@@ -202,6 +203,11 @@ const StudentLogin = () => {
         });
 
         if (data.success) {
+          if (data.role !== 'student') {
+            toast.error('Access denied. This portal is for students only.');
+            await axios.post(backendUrl + '/api/auth/logout');
+            return;
+          }
           setIsLoggedin(true);
           getUserData();
           setRedirecting(true);
@@ -235,9 +241,9 @@ const StudentLogin = () => {
 
         {/* Headline */}
         <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px' }}>
-          <motion.div 
-            initial={{ opacity: 0, x: -30 }} 
-            animate={{ opacity: 1, x: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
             style={{ flex: '1 1 400px', minWidth: 0 }}
           >
@@ -256,18 +262,18 @@ const StudentLogin = () => {
           </motion.div>
 
           {/* Card */}
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }} 
-            animate={{ opacity: 1, x: 0 }} 
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
             style={{
-            flex: '0 1 420px',
-            background: PAPER,
-            borderTop: `2.5px solid ${GOLD}`,
-            borderRadius: '3px',
-            padding: '40px 36px 36px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-          }}>
+              flex: '0 1 420px',
+              background: PAPER,
+              borderTop: `2.5px solid ${GOLD}`,
+              borderRadius: '3px',
+              padding: '40px 36px 36px',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+            }}>
             <h2 style={{ fontSize: '20px', fontWeight: 700, color: INK_TEXT, marginBottom: '4px', fontFamily: '"Outfit", sans-serif' }}>
               Check your email
             </h2>
@@ -365,9 +371,9 @@ const StudentLogin = () => {
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '1200px', margin: '0 auto', padding: '40px 24px', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px' }}>
 
         {/* Left: Headline */}
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }} 
-          animate={{ opacity: 1, x: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
           style={{ flex: '1 1 400px', minWidth: 0 }}
         >
@@ -391,18 +397,18 @@ const StudentLogin = () => {
         </motion.div>
 
         {/* Right: Form Card */}
-        <motion.div 
-          initial={{ opacity: 0, x: 30 }} 
-          animate={{ opacity: 1, x: 0 }} 
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
           style={{
-          flex: '0 1 420px',
-          background: PAPER,
-          borderTop: `2.5px solid ${GOLD}`,
-          borderRadius: '3px',
-          padding: '40px 36px 36px',
-          boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-        }}>
+            flex: '0 1 420px',
+            background: PAPER,
+            borderTop: `2.5px solid ${GOLD}`,
+            borderRadius: '3px',
+            padding: '40px 36px 36px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
+          }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, color: INK_TEXT, marginBottom: '2px', fontFamily: '"Outfit", sans-serif' }}>
             {state === 'Sign Up' ? 'Create Account' : 'Sign In'}
           </h2>

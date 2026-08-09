@@ -39,13 +39,7 @@ export const register = async (req, res) => {
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
 
-        //sending welcome email using brevo 
-        const mailOptions = {
-            to: email,
-            subject: 'Welcome to our Website',
-            text: `Your account has been created with Email-Id : ${email}`
-        }
-        await transporter.sendMail(mailOptions);
+
 
         return res.json({ success: true });
 
@@ -156,8 +150,8 @@ export const verifyEmail = async (req, res) => {
 
         const mailOption = {
             to: user.email,
-            subject: 'Account Verification',
-            text: 'Account verified successfully'
+            subject: 'Welcome to PMSSS',
+            text: `Welcome! Your account with Email-Id: ${user.email} has been verified successfully.`
         }
         await transporter.sendMail(mailOption);
         res.json({ success: true, message: 'Email Verified Successfully' })
@@ -223,35 +217,35 @@ export const sendResetOtp = async (req, res) => {
     }
 }
 
-export const resetPassword = async (req , res) =>{
-    const {email , otp , newPassword} = req.body;
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
 
-    if(!email || !otp || !newPassword){
+    if (!email || !otp || !newPassword) {
         return res.status(400).json({ success: false, message: "Email , Otp and New Password are required." })
     }
     try {
-        
-        const user = await userModel.findOne({email})
-        if(!user){
+
+        const user = await userModel.findOne({ email })
+        if (!user) {
             return res.status(404).json({ success: false, message: "User not Found" })
         }
-        if(user.resetOtp == '' || user.resetOtp != otp){
-            return res.status(400).json({ success: false, message: "Wrong otp"})
+        if (user.resetOtp == '' || user.resetOtp != otp) {
+            return res.status(400).json({ success: false, message: "Wrong otp" })
         }
-        if(user.resetOtpExpireAt < Date.now()){
+        if (user.resetOtpExpireAt < Date.now()) {
             return res.status(400).json({ success: false, message: "Otp expired" })
         }
-        
-        const hashedPassword = await bcrypt.hash(newPassword , 10);
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
         user.password = hashedPassword
         user.resetOtp = ''
         user.resetOtpExpireAt = 0
 
         await user.save();
 
-        return res.json({ success: true, message:"Password has been reset successfully."})
+        return res.json({ success: true, message: "Password has been reset successfully." })
 
     } catch (error) {
-       return res.status(500).json({ success: false, message: error.message }) 
+        return res.status(500).json({ success: false, message: error.message })
     }
 }

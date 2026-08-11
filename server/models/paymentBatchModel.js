@@ -58,7 +58,6 @@ const paymentBatchSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-paymentBatchSchema.index({ batchId: 1 });
 paymentBatchSchema.index({ parentBatchId: 1 });
 
 const paymentBatchModel =

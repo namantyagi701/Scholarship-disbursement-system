@@ -91,6 +91,7 @@ documentSchema.index(
   { student: 1, application: 1, documentType: 1 },
   { unique: true }
 );
+documentSchema.index({ application: 1 });
 
 const documentModel =
   mongoose.models.Document ||

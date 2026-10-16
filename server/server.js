@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import 'dotenv/config';
 import cookieParser from "cookie-parser";
+import compression from "compression";
 import connectDB from "./config/mongodb.js";
 import authRouter from "./routes/authRoutes.js";
 import studentRouter from "./routes/studentRoutes.js";
@@ -19,6 +20,8 @@ const allowedOrigins = [
   'http://localhost:5175',
   process.env.FRONTEND_URL
 ].filter(Boolean);
+
+app.use(compression());
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({origin: allowedOrigins , credentials : true}));

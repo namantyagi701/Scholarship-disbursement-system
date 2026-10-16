@@ -80,28 +80,45 @@ const ParticleBackground = () => {
       }
     }
 
-    // Initialize 250 particles
-    for (let i = 0; i < 250; i++) {
+    // Responsive particle count: fewer on mobile/tablet to avoid CPU lag
+    const particleCount = window.innerWidth < 768 ? 60 : 130;
+    for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle(true));
     }
 
+    let isVisible = true;
     const animate = () => {
-      // Clean clear for the light theme to avoid dark trails
+      if (!isVisible) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach(p => {
-        p.update();
-        p.draw();
-      });
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+      }
       
       animationFrameId = requestAnimationFrame(animate);
     };
     
+    // Pause animation when hero is scrolled out of view
+    const observer = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        cancelAnimationFrame(animationFrameId);
+      }
+    }, { threshold: 0.05 });
+
+    if (canvas) {
+      observer.observe(canvas);
+    }
     animate();
 
     return () => {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animationFrameId);
+      observer.disconnect();
     };
   }, []);
 

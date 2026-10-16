@@ -104,6 +104,10 @@ const applicationSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 applicationSchema.index({ student: 1, academicYear: 1 }, { unique: true });
+applicationSchema.index({ student: 1 });
+applicationSchema.index({ status: 1 });
+applicationSchema.index({ financeStatus: 1 });
+applicationSchema.index({ batchId: 1 });
 
 const applicationModel =
   mongoose.models.Application ||

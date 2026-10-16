@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Upload, CheckCircle, Eye, X, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import Tesseract from 'tesseract.js';
+
 
 // ── Levenshtein distance & similarity ──────────────────────────────────
 function levenshteinDistance(a, b) {
@@ -105,6 +105,7 @@ const DocumentUploadStep = ({
 
       let ocrResult = null;
       try {
+        const { default: Tesseract } = await import('tesseract.js');
         const { data: ocrData } = await Tesseract.recognize(file, 'eng');
         const rawText = ocrData.text || '';
         const nameScore = bestNameSimilarity(formData?.name || '', rawText);

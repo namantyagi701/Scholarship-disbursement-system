@@ -7,9 +7,11 @@ export const AppContent = createContext()
 export const AppContextProvider = (props) => {
     axios.defaults.withCredentials = true;
     const backendUrl = import.meta.env.VITE_BACKEND_URL
-    const [isLoggedin, setIsLoggedin] = useState(false)
-    const [userData, setUserData] = useState(null)
-    const [authChecked, setAuthChecked] = useState(false)
+    const hasStoredSession = Boolean(localStorage.getItem('ssp_has_session'));
+    const [isLoggedin, setIsLoggedin] = useState(false);
+    const [userData, setUserData] = useState(null);
+    // If no session flag exists, public visitors don't need to wait on a blocking auth screen
+    const [authChecked, setAuthChecked] = useState(!hasStoredSession);
 
     const getAuthState = async () => {
         try {
@@ -17,9 +19,17 @@ export const AppContextProvider = (props) => {
             if (data.success) {
                 setIsLoggedin(true)
                 setUserData(data.user)
+                localStorage.setItem('ssp_has_session', 'true');
+            } else {
+                setIsLoggedin(false);
+                setUserData(null);
+                localStorage.removeItem('ssp_has_session');
             }
         } catch (error) {
             // Not logged in — silently ignore 401
+            setIsLoggedin(false);
+            setUserData(null);
+            localStorage.removeItem('ssp_has_session');
         } finally {
             setAuthChecked(true)
         }
@@ -28,7 +38,13 @@ export const AppContextProvider = (props) => {
     const getUserData = async () => {
         try {
             const { data } = await axios.get(backendUrl + '/api/auth/is-auth')
-            data.success ? setUserData(data.user) : toast.error(data.message)
+            if (data.success) {
+                setUserData(data.user);
+                setIsLoggedin(true);
+                localStorage.setItem('ssp_has_session', 'true');
+            } else {
+                toast.error(data.message);
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || "Could not load user")
         }
@@ -37,6 +53,7 @@ export const AppContextProvider = (props) => {
    
     const logoutUser = async () => {
         try {
+            localStorage.removeItem('ssp_has_session');
             const { data } = await axios.post(backendUrl + "/api/auth/logout");
             if (data.success) {
                 setIsLoggedin(false);
@@ -46,6 +63,8 @@ export const AppContextProvider = (props) => {
                 toast.error(data.message);
             }
         } catch (error) {
+            setIsLoggedin(false);
+            setUserData(null);
             toast.error(error.response?.data?.message || "Logout failed");
         }
     };

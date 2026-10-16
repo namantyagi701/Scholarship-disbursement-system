@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { AppContent } from '../context/AppContext';
 import Hero from '../components/Landing/Hero';
 import Features from '../components/Landing/Features';
 import HowItWorks from '../components/Landing/HowItWorks';
@@ -9,6 +11,15 @@ import Header from '../components/Header';
 import CustomCursor from '../components/ui/CustomCursor';
 
 const LandingPage = () => {
+  const { isLoggedin, authChecked } = useContext(AppContent);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (authChecked && isLoggedin) {
+      navigate('/home', { replace: true });
+    }
+  }, [authChecked, isLoggedin, navigate]);
+
   const scrollToRoles = () => {
     document.getElementById('role-selection')?.scrollIntoView({ 
       behavior: 'smooth',
